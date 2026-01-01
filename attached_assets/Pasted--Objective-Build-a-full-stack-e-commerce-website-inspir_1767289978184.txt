@@ -1,0 +1,281 @@
+
+
+### 🎯 Objective
+
+Build a **full-stack e-commerce website** inspired by the **structure, navigation, and user flow** of the reference site below, but implemented with **entirely original code, copy, assets, and design**, fully rebranded as **Forge** and **Formula**.
+
+---
+
+### 🔗 Reference Website (Structure & UX Only)
+
+**[https://prestigepharmaceuticals.com/](https://prestigepharmaceuticals.com/)**
+
+Use this site **only** to understand:
+
+* Page structure
+* Navigation hierarchy
+* Category organization
+* E-commerce user flow
+
+⚠️ **Do NOT copy**:
+
+* Code
+* Text
+* Images
+* Logos
+* Colors
+* Layouts pixel-for-pixel
+* Any proprietary or copyrighted content
+
+The final result must be an **original implementation**, not a clone.
+
+---
+
+## 🧱 Required Tech Stack
+
+### Frontend
+
+* Next.js 14 (App Router)
+* TypeScript
+* Tailwind CSS
+* Responsive, mobile-first UI
+
+### Backend
+
+* Node.js
+* Prisma ORM
+* PostgreSQL (SQLite acceptable for development)
+* REST API or tRPC
+
+### Authentication
+
+* NextAuth.js
+* Email + password auth
+* JWT sessions
+* User roles: `USER`, `ADMIN`
+
+### Payments
+
+* Stripe Checkout
+* Secure payment sessions
+* Webhook handling
+* Order confirmation & status tracking
+
+### Utilities
+
+* Zustand or React Context (cart state)
+* Zod for validation
+
+---
+
+## 🎨 Branding & Design System
+
+### Brand Structure
+
+* **Forge** → Injectables & performance products
+* **Formula** → Oral & lifestyle products
+
+### Visual Identity
+
+* Forge colors: charcoal, steel gray, deep crimson
+* Formula colors: white, slate, electric blue
+* Custom **logo placeholders** for both brands
+* Typography:
+
+  * Headings: bold, industrial sans-serif
+  * Body: clean, modern sans-serif
+
+### Brand Tone
+
+* Professional
+* Scientific
+* Premium
+* Trust-focused
+
+---
+
+## 🧭 Pages & Routes
+
+### Public Pages
+
+```
+/
+ /shop
+ /shop/injectables
+ /shop/orals
+ /shop/pct
+ /shop/hgh-peptides
+ /shop/sexual-health
+ /shop/hair-growth
+ /shop/weight-loss
+ /product/[slug]
+ /about
+ /contact
+ /faq
+ /shipping
+ /how-to-pay
+ /track-order
+ /reviews
+```
+
+### Authentication
+
+```
+/login
+/register
+/account
+/orders
+```
+
+### Admin (Scaffolded)
+
+```
+/admin
+/admin/products
+/admin/orders
+/admin/users
+```
+
+---
+
+## 🏠 Homepage Requirements
+
+* Hero banner featuring Forge & Formula products
+* Category grid with icons
+* Featured product carousel
+* Trust badges (shipping, quality, support)
+* Customer testimonials
+* Newsletter signup
+* Footer with:
+
+  * Navigation links
+  * Policies
+  * Social icons
+
+---
+
+## 🛒 E-Commerce Functionality
+
+### Products
+
+* Image gallery
+* Price
+* Category tags
+* Description
+* Stock indicator
+* Add-to-cart
+* Related products
+
+### Cart
+
+* Persistent cart (localStorage + DB sync)
+* Quantity updates
+* Remove items
+* Price totals
+
+### Checkout
+
+* Stripe Checkout
+* Billing & shipping info
+* Order confirmation page
+* Email receipt placeholder
+
+---
+
+## 🔐 Authentication & User Dashboard
+
+* User registration & login
+* Password hashing
+* Session persistence
+* Account dashboard:
+
+  * View orders
+  * Order status
+  * Profile info
+
+---
+
+## 📦 Orders & Payments Logic
+
+* Stripe Checkout Sessions
+* Create order on successful payment
+* Order statuses:
+
+```
+pending
+paid
+shipped
+completed
+```
+
+* Stripe webhook handling
+
+---
+
+## 🗃️ Database Models (Prisma)
+
+```
+User
+Product
+Category
+Order
+OrderItem
+Review
+```
+
+Include relationships and seed data.
+
+---
+
+## 🧪 Product Naming Rules (Examples)
+
+| Category   | Example        |
+| ---------- | -------------- |
+| Injectable | ForgeTest E    |
+| Injectable | ForgeTren A    |
+| Oral       | FormulaAnavar  |
+| Oral       | FormulaDbol    |
+| PCT        | FormulaRecover |
+| HGH        | ForgeGrowth    |
+
+---
+
+## 📁 Project Structure
+
+```
+/app
+/components
+/lib
+/prisma
+/public
+/styles
+```
+
+Reusable components:
+
+* Navbar
+* Footer
+* ProductCard
+* CartDrawer
+* CheckoutButton
+
+---
+
+## 📈 SEO & Performance
+
+* Dynamic metadata
+* OpenGraph tags
+* Image optimization
+* Lazy loading
+* Accessible markup
+
+---
+
+## 🚀 Final Deliverables
+
+* Fully runnable project
+* Frontend + backend + auth + payments
+* Prisma schema & seed data
+* Stripe integration
+* Forge & Formula branding
+* Clear setup & run instructions
