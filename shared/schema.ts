@@ -29,7 +29,7 @@ export const products = pgTable("products", {
   slug: text("slug").notNull().unique(),
   description: text("description"),
   shortDescription: text("short_description"),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }),
   compareAtPrice: decimal("compare_at_price", { precision: 10, scale: 2 }),
   categoryId: varchar("category_id").references(() => categories.id),
   brand: text("brand").notNull().default("forge"), // "forge" or "formula"

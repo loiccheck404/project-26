@@ -6,19 +6,14 @@ import {
   Pill,
   Heart,
   Beaker,
-  Sparkles,
-  Scale,
+  TrendingUp,
   Shield,
   Truck,
-  Headphones,
-  Lock,
-  Star,
-  ChevronLeft,
-  ChevronRight,
+  FlaskConical,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { ProductCard, ProductCardSkeleton } from "@/components/product-card";
 import type { Product } from "@shared/schema";
 
@@ -27,87 +22,59 @@ const categories = [
     name: "Injectables",
     slug: "injectables",
     icon: Syringe,
-    description: "Performance compounds",
-    brand: "forge",
+    description: "Premium injectable compounds",
+    count: "18 products",
   },
   {
     name: "Orals",
     slug: "orals",
     icon: Pill,
     description: "Oral compounds",
-    brand: "formula",
+    count: "17 products",
   },
   {
-    name: "PCT",
-    slug: "pct",
+    name: "Post Cycle / Pharma",
+    slug: "pct-pharma",
     icon: Heart,
-    description: "Post cycle therapy",
-    brand: "formula",
+    description: "PCT & pharmaceutical",
+    count: "17 products",
   },
   {
-    name: "HGH & Peptides",
-    slug: "hgh-peptides",
+    name: "Peptides",
+    slug: "peptides",
     icon: Beaker,
-    description: "Growth & recovery",
-    brand: "forge",
+    description: "Therapeutic peptides",
+    count: "12 products",
   },
   {
-    name: "Sexual Health",
-    slug: "sexual-health",
-    icon: Sparkles,
-    description: "Vitality products",
-    brand: "formula",
-  },
-  {
-    name: "Weight Loss",
-    slug: "weight-loss",
-    icon: Scale,
-    description: "Body composition",
-    brand: "formula",
+    name: "Growth Hormone",
+    slug: "growth-hormone",
+    icon: TrendingUp,
+    description: "HGH & growth factors",
+    count: "5 products",
   },
 ];
 
-const trustBadges = [
+const qualityBadges = [
   {
-    icon: Truck,
-    title: "Free Shipping",
-    description: "On orders over $150",
+    icon: FlaskConical,
+    title: "Lab Tested",
+    description: "Every batch verified for purity",
   },
   {
     icon: Shield,
+    title: "Pharmaceutical Grade",
+    description: "Premium quality assurance",
+  },
+  {
+    icon: Truck,
+    title: "Discrete Shipping",
+    description: "Secure, unmarked packaging",
+  },
+  {
+    icon: CheckCircle,
     title: "Quality Guaranteed",
-    description: "Lab tested products",
-  },
-  {
-    icon: Headphones,
-    title: "24/7 Support",
-    description: "Expert assistance",
-  },
-  {
-    icon: Lock,
-    title: "Secure Checkout",
-    description: "Encrypted payments",
-  },
-];
-
-const testimonials = [
-  {
-    name: "Michael R.",
-    rating: 5,
-    text: "Outstanding quality and fast shipping. The results speak for themselves. Highly recommend!",
-    verified: true,
-  },
-  {
-    name: "David T.",
-    rating: 5,
-    text: "Been using their products for 6 months. Consistent quality every time. Best in the business.",
-    verified: true,
-  },
-  {
-    name: "James K.",
-    rating: 5,
-    text: "Customer service is top-notch. They answered all my questions quickly and professionally.",
-    verified: true,
+    description: "Satisfaction assured",
   },
 ];
 
@@ -118,121 +85,82 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 py-20 lg:py-32">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+      <section className="relative overflow-hidden py-20 lg:py-32">
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-card/50" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/5 via-transparent to-transparent" />
+        
         <div className="relative mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div className="text-center lg:text-left">
-              <Badge className="mb-4 bg-white/10 text-white backdrop-blur-sm">
-                Premium Quality Products
-              </Badge>
-              <h1 className="font-heading text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Premium Performance.
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-blue-500">
-                  Scientific Precision.
-                </span>
-              </h1>
-              <p className="mt-6 text-lg text-zinc-300 max-w-xl mx-auto lg:mx-0">
-                Experience the difference with our lab-tested, pharmaceutical-grade products.
-                Trusted by athletes and professionals worldwide.
-              </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-4 lg:justify-start">
-                <Button
-                  size="lg"
-                  className="bg-forge hover:bg-forge/90 text-white"
-                  asChild
-                  data-testid="button-shop-forge"
-                >
-                  <Link href="/shop?brand=forge">
-                    Shop Forge
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  className="bg-formula hover:bg-formula/90 text-white"
-                  asChild
-                  data-testid="button-shop-formula"
-                >
-                  <Link href="/shop?brand=formula">
-                    Shop Formula
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 py-1.5 mb-6">
+              <FlaskConical className="h-4 w-4 text-gold" />
+              <span className="text-sm font-medium text-gold">Premium Pharmaceutical Grade</span>
             </div>
-            <div className="hidden lg:block">
-              <div className="relative">
-                <div className="absolute -inset-4 rounded-xl bg-gradient-to-r from-forge/20 to-formula/20 blur-3xl" />
-                <div className="relative grid grid-cols-2 gap-4">
-                  <div className="space-y-4">
-                    <div className="h-48 rounded-lg bg-zinc-800/50 backdrop-blur flex items-center justify-center border border-zinc-700">
-                      <div className="text-center">
-                        <Syringe className="h-12 w-12 text-forge mx-auto mb-2" />
-                        <span className="text-sm font-medium text-white">Forge Injectables</span>
-                      </div>
-                    </div>
-                    <div className="h-32 rounded-lg bg-zinc-800/50 backdrop-blur flex items-center justify-center border border-zinc-700">
-                      <div className="text-center">
-                        <Beaker className="h-10 w-10 text-forge mx-auto mb-2" />
-                        <span className="text-sm font-medium text-white">HGH</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-4 pt-8">
-                    <div className="h-32 rounded-lg bg-zinc-800/50 backdrop-blur flex items-center justify-center border border-zinc-700">
-                      <div className="text-center">
-                        <Pill className="h-10 w-10 text-formula mx-auto mb-2" />
-                        <span className="text-sm font-medium text-white">Orals</span>
-                      </div>
-                    </div>
-                    <div className="h-48 rounded-lg bg-zinc-800/50 backdrop-blur flex items-center justify-center border border-zinc-700">
-                      <div className="text-center">
-                        <Heart className="h-12 w-12 text-formula mx-auto mb-2" />
-                        <span className="text-sm font-medium text-white">Formula PCT</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            
+            <h1 className="font-heading text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+              Premium Pharmaceutical
+              <br />
+              <span className="text-gold">Grade Products</span>
+            </h1>
+            
+            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+              Trusted source for lab-tested, pharmaceutical-grade compounds. 
+              Every product verified for purity and potency.
+            </p>
+            
+            <div className="mt-10 flex flex-wrap justify-center gap-4">
+              <Button
+                size="lg"
+                className="bg-gold text-black font-semibold"
+                asChild
+                data-testid="button-browse-catalog"
+              >
+                <Link href="/shop">
+                  Browse Catalog
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-border"
+                asChild
+                data-testid="button-contact-us"
+              >
+                <Link href="/contact">Contact Us</Link>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-16 lg:py-24">
+      <section className="py-16 lg:py-20 border-t border-border">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold tracking-tight">
-              Shop by Category
+            <h2 className="font-heading text-2xl font-bold tracking-tight lg:text-3xl">
+              Product Categories
             </h2>
             <p className="mt-2 text-muted-foreground">
-              Browse our extensive collection of premium products
+              Browse our complete selection of pharmaceutical products
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {categories.map((category) => (
               <Link
                 key={category.slug}
                 href={`/shop/${category.slug}`}
                 data-testid={`link-category-${category.slug}`}
               >
-                <Card className="group h-full overflow-visible hover-elevate transition-all">
+                <Card className="group h-full card-hover-gold transition-all">
                   <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-                    <div
-                      className={`mb-4 flex h-14 w-14 items-center justify-center rounded-full ${
-                        category.brand === "forge"
-                          ? "bg-forge/10 text-forge"
-                          : "bg-formula/10 text-formula"
-                      }`}
-                    >
+                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gold/10 text-gold group-hover:bg-gold/20 transition-colors">
                       <category.icon className="h-7 w-7" />
                     </div>
-                    <h3 className="font-medium">{category.name}</h3>
+                    <h3 className="font-medium text-foreground">{category.name}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {category.description}
                     </p>
+                    <span className="mt-2 text-xs text-gold">{category.count}</span>
                   </CardContent>
                 </Card>
               </Link>
@@ -241,27 +169,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-muted/30 py-16 lg:py-24">
+      <section className="py-16 lg:py-20 bg-card/50 border-y border-border">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h2 className="font-heading text-3xl font-bold tracking-tight">
+              <h2 className="font-heading text-2xl font-bold tracking-tight lg:text-3xl">
                 Featured Products
               </h2>
-              <p className="mt-2 text-muted-foreground">
-                Our most popular items, hand-picked for you
+              <p className="mt-1 text-muted-foreground">
+                Popular selections from our catalog
               </p>
             </div>
             <Button variant="outline" asChild data-testid="link-view-all-products">
               <Link href="/shop">
-                View All
+                View All Products
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {isLoading
-              ? Array.from({ length: 4 }).map((_, i) => (
+              ? Array.from({ length: 8 }).map((_, i) => (
                   <ProductCardSkeleton key={i} />
                 ))
               : featuredProducts?.slice(0, 8).map((product) => (
@@ -270,9 +199,9 @@ export default function HomePage() {
             {!isLoading && (!featuredProducts || featuredProducts.length === 0) && (
               <div className="col-span-full py-12 text-center">
                 <p className="text-muted-foreground">
-                  No featured products available yet. Check back soon!
+                  Products loading... Please check back shortly.
                 </p>
-                <Button className="mt-4" asChild>
+                <Button className="mt-4 bg-gold text-black" asChild>
                   <Link href="/shop">Browse All Products</Link>
                 </Button>
               </div>
@@ -281,113 +210,67 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-24">
+      <section className="py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {trustBadges.map((badge) => (
+          <div className="text-center mb-10">
+            <h2 className="font-heading text-2xl font-bold tracking-tight lg:text-3xl">
+              Why Choose Us
+            </h2>
+            <p className="mt-2 text-muted-foreground">
+              Commitment to quality and customer satisfaction
+            </p>
+          </div>
+          
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {qualityBadges.map((badge) => (
               <div
                 key={badge.title}
-                className="flex items-center gap-4 rounded-lg border border-border bg-card p-4"
+                className="flex flex-col items-center text-center rounded-lg border border-border bg-card p-6"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                  <badge.icon className="h-6 w-6 text-muted-foreground" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gold/10 mb-4">
+                  <badge.icon className="h-6 w-6 text-gold" />
                 </div>
-                <div>
-                  <p className="font-medium">{badge.title}</p>
-                  <p className="text-sm text-muted-foreground">{badge.description}</p>
-                </div>
+                <p className="font-medium text-foreground">{badge.title}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{badge.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-muted/30 py-16 lg:py-24">
+      <section className="py-16 lg:py-20 border-t border-border">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold tracking-tight">
-              What Our Customers Say
-            </h2>
-            <p className="mt-2 text-muted-foreground">
-              Real reviews from verified customers
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="overflow-visible">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-1 mb-4">
-                    {Array.from({ length: testimonial.rating }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground mb-4">"{testimonial.text}"</p>
-                  <div className="flex items-center gap-2">
-                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                      <span className="text-sm font-medium">
-                        {testimonial.name.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{testimonial.name}</p>
-                      {testimonial.verified && (
-                        <Badge variant="secondary" size="sm">
-                          Verified Buyer
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <div className="text-center mt-8">
-            <Button variant="outline" asChild data-testid="link-all-reviews">
-              <Link href="/reviews">
-                Read All Reviews
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-forge to-formula p-8 lg:p-12">
-            <div className="absolute inset-0 bg-black/20" />
-            <div className="relative text-center text-white">
-              <h2 className="font-heading text-3xl font-bold tracking-tight lg:text-4xl">
-                Ready to Transform Your Results?
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-card to-card/80 border border-gold/20 p-8 lg:p-12">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            
+            <div className="relative text-center max-w-2xl mx-auto">
+              <h2 className="font-heading text-2xl font-bold tracking-tight lg:text-3xl">
+                Ready to Order?
               </h2>
-              <p className="mt-4 text-lg text-white/80 max-w-2xl mx-auto">
-                Join thousands of satisfied customers who trust Forge and Formula
-                for their performance and lifestyle needs.
+              <p className="mt-4 text-muted-foreground">
+                Browse our complete catalog of pharmaceutical-grade products. 
+                Contact us directly for inquiries and orders.
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-4">
                 <Button
                   size="lg"
-                  variant="secondary"
-                  className="bg-white text-foreground hover:bg-white/90"
+                  className="bg-gold text-black font-semibold"
                   asChild
-                  data-testid="button-start-shopping"
+                  data-testid="button-browse-products"
                 >
                   <Link href="/shop">
-                    Start Shopping
+                    Browse Products
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white text-white hover:bg-white/10"
+                  className="border-gold/50 text-gold"
                   asChild
-                  data-testid="button-learn-more"
+                  data-testid="button-contact-order"
                 >
-                  <Link href="/about">Learn More</Link>
+                  <Link href="/contact">Contact for Order</Link>
                 </Button>
               </div>
             </div>

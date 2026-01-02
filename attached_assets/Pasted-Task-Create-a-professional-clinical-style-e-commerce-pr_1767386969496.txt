@@ -1,0 +1,23 @@
+Task: Create a professional, clinical-style e-commerce product catalog.
+Design Instructions:
+* Aesthetic: Mimic the design language of prestigepharmaceuticals.com. Use a "Premium Medical" theme.
+* Color Palette: Deep charcoal/black background with gold or medical-blue accents. Use clean, sans-serif typography (e.g., Inter or Montserrat).
+* Product Display: Products should be displayed in a responsive grid. Each card should feature a high-quality placeholder image of a medical vial or supplement bottle, the product name in bold, the dosage/concentration, and the price clearly displayed.
+* Navigation: Create categories for "Injectables," "Orals," "Post Cycle/Pharma," "Peptides," and "Growth Hormone."
+Data Implementation:
+Please populate the site with the following product data. Create a JSON object or an array to manage these:
+* Injectables:
+* Test E 300mg/ml ($50), Test C 250mg/ml ($55), Test C 50mg/ml ($50 - label as "Female Only"), Test P 100mg/ml ($35), Sus 250mg/ml ($60), Test Gel 50mg/pack x30 (Price: "Inquire via DM"), Tren E 200mg/ml ($80), Tren A 100mg/ml ($65), Tren H 100mg/ml ($100), TREST A 75mg/ml ($120), TREST E 120mg/ml ($200), DHB cyp-100mg/ml ($70), Deca 200mg/ml ($65), PRIMO E 150mg/ml ($100), NPP 200mg/ml ($65), Mast E 200mg/ml ($75), Mast P 100mg/ml ($65), Eq Cyp 200mg/ml ($65).
+* Orals:
+* Dbol 25mg x30 ($45), Anadrol 25mg x30 ($45), Winstrol 25mg x30 ($45), Superdrol 10mg x30 ($60), Superdrol injectable 40mg/ML ($100), Anavar 25mg x30 ($60), Anavar 10mg x30 ($45), Proviron 25mg x30 ($60), Accutane 20mg x30 ($60), D.N.P 100mg x30 ($70), D.N.P 200mg x30 ($130), Clen 40mcg x20 ($70), T3 25mcg x25 ($50), Cialis 40mg x30 ($60), TBol 25mg x30 ($50), D-Bombs (90mg Viagra/70mg Cialis) x30 ($80), Methyl-1-Testosterone 20mg x30 ($70).
+* Post Cycle / Pharma:
+* Clomid 25mg x30 ($45), Nolvadex 25mg x30 ($45), Adex 1mg x30 ($40), Aromasin 25mg x30 ($60), Prami .25mg x20 ($40), Metformin 850mg x30 ($60), Telmisartan 40mg x30 ($50), Cabergoline .5mg x20 ($60), HCG 5000iu ($50), Lasix 40mg x10 ($30), Modafinil 200mg x20 ($60), Finasteride 1mg x30 ($50), Hydrochlorothiazide 12.5mg x30 ($45), Hydrochlorothiazide 25mg x30 ($60), Nebivolol 10mg x30 ($50), Letrozole 2.5mg x20 ($40), Roloxifine 60mg x20 ($50).
+* Peptides:
+* Ozempic 4mg/3ml ($500), Ozempic 8mg/3ml ($800), Semaglutide (Generic) 2mg ($50), Semaglutide (Generic) 5mg ($125), TB-500 10mg ($80), BPC-157 5mg ($50), PT-141 10mg ($50), Melanotan 2 10mg ($50), Lantus 100IU pen ($70), Humalog cartridge 100IU ($70), Tirzepatide 10mg ($100), Tirzepatide 15mg ($150).
+* Growth Hormone:
+* IGF1-LR3 1mg ($70), HGH 150IU kits ($250), HGH 240IU kits ($450), HGH 100IU kits ($200), Genotropin 36iu 12mg ($300).
+Technical Requirements:
+* Use React or HTML/Tailwind CSS for the frontend.
+* Ensure a mobile-responsive layout.
+* Include a "Contact for Order" button on each product that links to a mock contact form or email.
+* Note: This is for an educational survey project only.

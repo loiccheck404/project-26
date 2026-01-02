@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Mail, Phone, MapPin, Send, Clock } from "lucide-react";
+import { Mail, MessageCircle, Send, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,20 +37,20 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email",
-    value: "support@forgeformula.com",
-    description: "We'll respond within 24 hours",
+    value: "Contact via form",
+    description: "We respond within 24 hours",
   },
   {
-    icon: Phone,
-    title: "Phone",
-    value: "+1 (555) 123-4567",
-    description: "Mon-Fri 9am-6pm EST",
+    icon: MessageCircle,
+    title: "Direct Message",
+    value: "Preferred method",
+    description: "For product inquiries",
   },
   {
     icon: Clock,
-    title: "Hours",
-    value: "24/7 Support",
-    description: "Email and chat available",
+    title: "Response Time",
+    value: "24-48 hours",
+    description: "Business days",
   },
 ];
 
@@ -58,48 +58,60 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const productInquiry = urlParams.get("product");
+
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
       name: "",
       email: "",
-      subject: "",
-      message: "",
+      subject: productInquiry ? "order" : "",
+      message: productInquiry ? `I would like to inquire about ordering: ${productInquiry}\n\nPlease provide details on availability and ordering process.` : "",
     },
   });
+
+  useEffect(() => {
+    if (productInquiry) {
+      form.setValue("subject", "order");
+      form.setValue("message", `I would like to inquire about ordering: ${productInquiry}\n\nPlease provide details on availability and ordering process.`);
+    }
+  }, [productInquiry, form]);
 
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsSubmitting(false);
     toast({
-      title: "Message sent!",
+      title: "Inquiry sent!",
       description: "We'll get back to you as soon as possible.",
     });
     form.reset();
+    window.history.replaceState({}, document.title, "/contact");
   };
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
       <div className="text-center mb-12">
         <h1 className="font-heading text-4xl font-bold tracking-tight">
-          Contact Us
+          {productInquiry ? "Product Inquiry" : "Contact Us"}
         </h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Have questions or need assistance? Our team is here to help. Reach out
-          and we'll respond as quickly as possible.
+          {productInquiry 
+            ? `Inquiring about: ${productInquiry}. Fill out the form below and we'll respond promptly.`
+            : "Have questions or ready to order? Fill out the form below and we'll get back to you."}
         </p>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3 mb-12">
+      <div className="grid gap-6 lg:grid-cols-3 mb-12">
         {contactInfo.map((info) => (
-          <Card key={info.title} className="overflow-visible">
+          <Card key={info.title} className="overflow-visible border-border">
             <CardContent className="p-6 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mx-auto mb-4">
-                <info.icon className="h-6 w-6 text-primary" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gold/10 mx-auto mb-4">
+                <info.icon className="h-6 w-6 text-gold" />
               </div>
-              <h3 className="font-medium">{info.title}</h3>
-              <p className="mt-1 font-semibold">{info.value}</p>
+              <h3 className="font-medium text-foreground">{info.title}</h3>
+              <p className="mt-1 font-semibold text-gold">{info.value}</p>
               <p className="mt-1 text-sm text-muted-foreground">{info.description}</p>
             </CardContent>
           </Card>
@@ -107,9 +119,11 @@ export default function ContactPage() {
       </div>
 
       <div className="max-w-2xl mx-auto">
-        <Card>
+        <Card className="border-border">
           <CardContent className="p-6 lg:p-8">
-            <h2 className="font-heading text-2xl font-bold mb-6">Send us a message</h2>
+            <h2 className="font-heading text-2xl font-bold mb-6">
+              {productInquiry ? "Order Inquiry Form" : "Send us a message"}
+            </h2>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid gap-6 sm:grid-cols-2">
@@ -151,18 +165,17 @@ export default function ContactPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Subject</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger data-testid="select-subject">
                             <SelectValue placeholder="Select a subject" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="general">General Inquiry</SelectItem>
-                          <SelectItem value="order">Order Support</SelectItem>
-                          <SelectItem value="product">Product Question</SelectItem>
-                          <SelectItem value="shipping">Shipping Issue</SelectItem>
-                          <SelectItem value="return">Returns & Refunds</SelectItem>
+                          <SelectItem value="order">Product Order Inquiry</SelectItem>
+                          <SelectItem value="general">General Question</SelectItem>
+                          <SelectItem value="product">Product Information</SelectItem>
+                          <SelectItem value="shipping">Shipping Question</SelectItem>
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
@@ -191,7 +204,7 @@ export default function ContactPage() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full"
+                  className="w-full bg-gold text-black font-semibold"
                   disabled={isSubmitting}
                   data-testid="button-send-message"
                 >
@@ -200,7 +213,7 @@ export default function ContactPage() {
                   ) : (
                     <>
                       <Send className="mr-2 h-4 w-4" />
-                      Send Message
+                      Send Inquiry
                     </>
                   )}
                 </Button>
@@ -208,6 +221,10 @@ export default function ContactPage() {
             </Form>
           </CardContent>
         </Card>
+
+        <p className="text-center text-sm text-muted-foreground mt-6">
+          This is for educational survey purposes only.
+        </p>
       </div>
     </div>
   );

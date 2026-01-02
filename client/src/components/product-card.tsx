@@ -1,9 +1,8 @@
 import { Link } from "wouter";
-import { ShoppingCart, Package } from "lucide-react";
+import { MessageCircle, Package } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useCartStore } from "@/lib/cart-store";
 import type { Product } from "@shared/schema";
 
 interface ProductCardProps {
@@ -11,25 +10,24 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { addItem } = useCartStore();
   const isInStock = product.stock > 0;
   const isLowStock = product.stock > 0 && product.stock <= 5;
-  const comparePrice = product.compareAtPrice
-    ? parseFloat(product.compareAtPrice)
-    : null;
-  const currentPrice = parseFloat(product.price);
-  const hasDiscount = comparePrice && comparePrice > currentPrice;
-  const discountPercent = hasDiscount
-    ? Math.round(((comparePrice - currentPrice) / comparePrice) * 100)
-    : 0;
+  const hasPrice = product.price !== null;
+  const currentPrice = hasPrice ? parseFloat(product.price!) : null;
+
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.location.href = `/contact?product=${encodeURIComponent(product.name)}`;
+  };
 
   return (
     <Card
-      className="group overflow-visible hover-elevate"
+      className="group overflow-visible card-hover-gold"
       data-testid={`product-card-${product.id}`}
     >
       <Link href={`/product/${product.slug}`}>
-        <div className="relative aspect-square overflow-hidden rounded-t-md bg-muted">
+        <div className="relative aspect-square overflow-hidden rounded-t-md bg-card border-b border-border">
           {product.imageUrl ? (
             <img
               src={product.imageUrl}
@@ -37,17 +35,9 @@ export function ProductCard({ product }: ProductCardProps) {
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <Package className="h-12 w-12 text-muted-foreground" />
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-card to-muted">
+              <Package className="h-16 w-16 text-muted-foreground/40" />
             </div>
-          )}
-          {hasDiscount && (
-            <Badge
-              className="absolute left-2 top-2 bg-destructive text-destructive-foreground"
-              data-testid={`badge-discount-${product.id}`}
-            >
-              -{discountPercent}%
-            </Badge>
           )}
           {!isInStock && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/80">
@@ -57,26 +47,8 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </Link>
       <CardContent className="p-4">
-        <div className="mb-2 flex items-start justify-between gap-2">
-          <Badge
-            variant="outline"
-            size="sm"
-            className={
-              product.brand === "forge"
-                ? "border-forge/30 text-forge"
-                : "border-formula/30 text-formula"
-            }
-          >
-            {product.brand === "forge" ? "Forge" : "Formula"}
-          </Badge>
-          {isLowStock && (
-            <Badge variant="secondary" size="sm">
-              Only {product.stock} left
-            </Badge>
-          )}
-        </div>
         <Link href={`/product/${product.slug}`}>
-          <h3 className="font-medium line-clamp-2 hover:text-primary transition-colors">
+          <h3 className="font-medium text-foreground line-clamp-1 group-hover:text-gold transition-colors">
             {product.name}
           </h3>
         </Link>
@@ -85,28 +57,32 @@ export function ProductCard({ product }: ProductCardProps) {
         </p>
         <div className="mt-3 flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-2">
-            <span className="font-heading text-lg font-semibold">
-              ${currentPrice.toFixed(2)}
-            </span>
-            {hasDiscount && (
-              <span className="text-sm text-muted-foreground line-through">
-                ${comparePrice.toFixed(2)}
+            {hasPrice ? (
+              <span className="font-heading text-lg font-semibold text-gold">
+                ${currentPrice!.toFixed(2)}
+              </span>
+            ) : (
+              <span className="text-sm font-medium text-muted-foreground">
+                Inquire via DM
               </span>
             )}
+            {isLowStock && (
+              <Badge variant="secondary" size="sm" className="text-xs">
+                Low Stock
+              </Badge>
+            )}
           </div>
-          <Button
-            size="icon"
-            variant={isInStock ? "default" : "secondary"}
-            disabled={!isInStock}
-            onClick={(e) => {
-              e.preventDefault();
-              addItem(product);
-            }}
-            data-testid={`button-add-to-cart-${product.id}`}
-          >
-            <ShoppingCart className="h-4 w-4" />
-          </Button>
         </div>
+        <Button
+          className="w-full mt-3 bg-gold text-black font-medium"
+          size="sm"
+          disabled={!isInStock}
+          onClick={handleContactClick}
+          data-testid={`button-contact-order-${product.id}`}
+        >
+          <MessageCircle className="h-4 w-4 mr-2" />
+          Contact for Order
+        </Button>
       </CardContent>
     </Card>
   );
@@ -117,13 +93,10 @@ export function ProductCardSkeleton() {
     <Card className="overflow-hidden">
       <div className="aspect-square animate-pulse bg-muted" />
       <CardContent className="p-4">
-        <div className="mb-2 h-5 w-16 animate-pulse rounded bg-muted" />
         <div className="h-5 w-full animate-pulse rounded bg-muted" />
         <div className="mt-1 h-4 w-3/4 animate-pulse rounded bg-muted" />
-        <div className="mt-3 flex items-center justify-between">
-          <div className="h-6 w-16 animate-pulse rounded bg-muted" />
-          <div className="h-9 w-9 animate-pulse rounded bg-muted" />
-        </div>
+        <div className="mt-3 h-6 w-20 animate-pulse rounded bg-muted" />
+        <div className="mt-3 h-8 w-full animate-pulse rounded bg-muted" />
       </CardContent>
     </Card>
   );

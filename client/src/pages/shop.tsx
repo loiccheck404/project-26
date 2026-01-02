@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation, useSearch } from "wouter";
-import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { Link } from "wouter";
+import { Search, SlidersHorizontal, X, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +31,6 @@ interface ShopPageProps {
 
 const sortOptions = [
   { value: "featured", label: "Featured" },
-  { value: "newest", label: "Newest" },
   { value: "price-asc", label: "Price: Low to High" },
   { value: "price-desc", label: "Price: High to Low" },
   { value: "name", label: "Name: A to Z" },
@@ -40,11 +39,8 @@ const sortOptions = [
 export default function ShopPage({ categorySlug }: ShopPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("featured");
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const searchParams = useSearch();
 
   const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ["/api/products", categorySlug],
@@ -70,21 +66,12 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
       );
     }
 
-    const urlParams = new URLSearchParams(searchParams);
-    const brandParam = urlParams.get("brand");
-    if (brandParam) {
-      filtered = filtered.filter((p) => p.brand === brandParam);
-    }
-
-    if (selectedBrands.length > 0) {
-      filtered = filtered.filter((p) => selectedBrands.includes(p.brand));
-    }
-
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
+          p.shortDescription?.toLowerCase().includes(query) ||
           p.description?.toLowerCase().includes(query)
       );
     }
@@ -93,24 +80,20 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
       filtered = filtered.filter((p) => p.stock > 0);
     }
 
-    filtered = filtered.filter((p) => {
-      const price = parseFloat(p.price);
-      return price >= priceRange[0] && price <= priceRange[1];
-    });
-
     switch (sortBy) {
-      case "newest":
-        filtered.sort(
-          (a, b) =>
-            new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime()
-        );
-        break;
       case "price-asc":
-        filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        filtered.sort((a, b) => {
+          const priceA = a.price ? parseFloat(a.price) : 9999;
+          const priceB = b.price ? parseFloat(b.price) : 9999;
+          return priceA - priceB;
+        });
         break;
       case "price-desc":
-        filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        filtered.sort((a, b) => {
+          const priceA = a.price ? parseFloat(a.price) : 0;
+          const priceB = b.price ? parseFloat(b.price) : 0;
+          return priceB - priceA;
+        });
         break;
       case "name":
         filtered.sort((a, b) => a.name.localeCompare(b.name));
@@ -121,56 +104,44 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
     }
 
     return filtered;
-  }, [products, categories, categorySlug, searchQuery, selectedBrands, sortBy, inStockOnly, priceRange, searchParams]);
-
-  const toggleBrand = (brand: string) => {
-    setSelectedBrands((prev) =>
-      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-    );
-  };
+  }, [products, categories, categorySlug, searchQuery, sortBy, inStockOnly]);
 
   const clearFilters = () => {
     setSearchQuery("");
-    setSelectedBrands([]);
-    setPriceRange([0, 500]);
     setInStockOnly(false);
     setSortBy("featured");
   };
 
-  const hasActiveFilters =
-    searchQuery ||
-    selectedBrands.length > 0 ||
-    priceRange[0] > 0 ||
-    priceRange[1] < 500 ||
-    inStockOnly;
+  const hasActiveFilters = searchQuery || inStockOnly;
 
   const FilterSidebar = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="font-medium mb-3">Brand</h3>
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="brand-forge"
-              checked={selectedBrands.includes("forge")}
-              onCheckedChange={() => toggleBrand("forge")}
-              data-testid="checkbox-brand-forge"
-            />
-            <Label htmlFor="brand-forge" className="text-sm cursor-pointer">
-              Forge
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="brand-formula"
-              checked={selectedBrands.includes("formula")}
-              onCheckedChange={() => toggleBrand("formula")}
-              data-testid="checkbox-brand-formula"
-            />
-            <Label htmlFor="brand-formula" className="text-sm cursor-pointer">
-              Formula
-            </Label>
-          </div>
+        <h3 className="font-medium mb-3 text-gold">Categories</h3>
+        <div className="space-y-1">
+          <Link
+            href="/shop"
+            className={`block text-sm py-1.5 hover:text-foreground transition-colors ${
+              !categorySlug ? "text-gold font-medium" : "text-muted-foreground"
+            }`}
+            data-testid="filter-category-all"
+          >
+            All Products
+          </Link>
+          {categories?.map((category) => (
+            <Link
+              key={category.id}
+              href={`/shop/${category.slug}`}
+              className={`block text-sm py-1.5 hover:text-foreground transition-colors ${
+                categorySlug === category.slug
+                  ? "text-gold font-medium"
+                  : "text-muted-foreground"
+              }`}
+              data-testid={`filter-category-${category.slug}`}
+            >
+              {category.name}
+            </Link>
+          ))}
         </div>
       </div>
 
@@ -191,28 +162,6 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
         </div>
       </div>
 
-      <Separator />
-
-      <div>
-        <h3 className="font-medium mb-3">Categories</h3>
-        <div className="space-y-1">
-          {categories?.map((category) => (
-            <a
-              key={category.id}
-              href={`/shop/${category.slug}`}
-              className={`block text-sm py-1 hover:text-foreground transition-colors ${
-                categorySlug === category.slug
-                  ? "text-foreground font-medium"
-                  : "text-muted-foreground"
-              }`}
-              data-testid={`filter-category-${category.slug}`}
-            >
-              {category.name}
-            </a>
-          ))}
-        </div>
-      </div>
-
       {hasActiveFilters && (
         <>
           <Separator />
@@ -226,6 +175,17 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
           </Button>
         </>
       )}
+
+      <Separator />
+
+      <div className="pt-2">
+        <Button className="w-full bg-gold text-black font-medium" asChild>
+          <Link href="/contact">
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Contact for Order
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 
@@ -240,7 +200,7 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
         )}
         {!currentCategory && (
           <p className="mt-2 text-muted-foreground">
-            Browse our complete collection of premium products
+            Browse our complete catalog of pharmaceutical-grade products
           </p>
         )}
       </div>
@@ -264,7 +224,7 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
                 Filters
                 {hasActiveFilters && (
                   <Badge variant="secondary" className="ml-2">
-                    {selectedBrands.length + (inStockOnly ? 1 : 0)}
+                    {(inStockOnly ? 1 : 0) + (searchQuery ? 1 : 0)}
                   </Badge>
                 )}
               </Button>
@@ -311,15 +271,6 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
               />
             </Badge>
           )}
-          {selectedBrands.map((brand) => (
-            <Badge key={brand} variant="secondary" className="gap-1">
-              {brand === "forge" ? "Forge" : "Formula"}
-              <X
-                className="h-3 w-3 cursor-pointer"
-                onClick={() => toggleBrand(brand)}
-              />
-            </Badge>
-          ))}
           {inStockOnly && (
             <Badge variant="secondary" className="gap-1">
               In Stock
@@ -333,19 +284,19 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
       )}
 
       <div className="flex gap-8">
-        <aside className="hidden w-64 flex-shrink-0 lg:block">
+        <aside className="hidden w-56 flex-shrink-0 lg:block">
           <FilterSidebar />
         </aside>
 
         <div className="flex-1">
           {productsLoading ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 9 }).map((_, i) => (
                 <ProductCardSkeleton key={i} />
               ))}
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

@@ -80,17 +80,16 @@ export default {
           busy: "rgb(239 68 68)",
           offline: "rgb(156 163 175)",
         },
-        // Brand colors - Forge (Performance/Injectables)
-        forge: {
-          DEFAULT: "hsl(var(--forge) / <alpha-value>)",
-          foreground: "hsl(var(--forge-foreground) / <alpha-value>)",
-          muted: "hsl(var(--forge-muted) / <alpha-value>)",
+        // Gold accent color
+        gold: {
+          DEFAULT: "hsl(var(--gold) / <alpha-value>)",
+          foreground: "hsl(var(--gold-foreground) / <alpha-value>)",
+          muted: "hsl(var(--gold-muted) / <alpha-value>)",
         },
-        // Brand colors - Formula (Oral/Lifestyle)
-        formula: {
-          DEFAULT: "hsl(var(--formula) / <alpha-value>)",
-          foreground: "hsl(var(--formula-foreground) / <alpha-value>)",
-          muted: "hsl(var(--formula-muted) / <alpha-value>)",
+        // Medical Blue accent
+        "medical-blue": {
+          DEFAULT: "hsl(var(--medical-blue) / <alpha-value>)",
+          foreground: "hsl(var(--medical-blue-foreground) / <alpha-value>)",
         },
       },
       fontFamily: {

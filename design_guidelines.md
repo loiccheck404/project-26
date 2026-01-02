@@ -1,129 +1,157 @@
-# Design Guidelines: Forge & Formula E-Commerce Platform
+# Design Guidelines: Forge & Formula - Premium Medical E-Commerce
 
 ## Design Approach
-**Reference-Based E-Commerce Approach** - Drawing from high-end e-commerce platforms (Shopify, premium supplement sites) with a focus on trust, professionalism, and product showcasing. Dual-brand architecture requires sophisticated visual separation while maintaining cohesive user experience.
+**Premium Medical Clinical Aesthetic** - Drawing inspiration from high-end pharmaceutical and clinical supplement retailers. The design emphasizes professionalism, trust, and scientific precision with a sophisticated dark theme.
 
-## Brand Architecture
+## Color Palette
 
-### Forge (Performance & Injectables)
-- **Colors**: Charcoal (#2D2D2D), Steel Gray (#6B7280), Deep Crimson (#991B1B)
-- **Personality**: Bold, powerful, industrial, premium
-- **Visual Treatment**: Sharp edges, strong contrasts, metallic accents
+### Primary Theme (Dark Clinical)
+- **Background**: Deep Charcoal (#0A0A0B) - Near black, clinical, premium
+- **Card/Surface**: Charcoal (#121214) - Slightly elevated surfaces
+- **Borders**: Dark Gray (#1E1E22) - Subtle definition
+- **Text Primary**: Off-White (#F5F5F7) - High contrast, readable
+- **Text Secondary**: Gray (#A1A1AA) - Supporting information
+- **Text Muted**: Dark Gray (#71717A) - Tertiary info
 
-### Formula (Oral & Lifestyle)
-- **Colors**: White (#FFFFFF), Slate (#475569), Electric Blue (#3B82F6)
-- **Personality**: Clean, scientific, accessible, modern
-- **Visual Treatment**: Smooth edges, bright highlights, clinical precision
+### Accent Colors
+- **Gold/Amber**: (#D4AF37) - Premium accent for CTAs, highlights, prices
+- **Medical Blue**: (#3B82F6) - Trust, clinical, links
+- **Success Green**: (#22C55E) - In stock, positive
+- **Warning Amber**: (#F59E0B) - Low stock
+- **Error Red**: (#EF4444) - Out of stock, errors
 
 ## Typography System
-- **Headings**: Bold industrial sans-serif (Inter Bold/Black, Montserrat Bold, or similar)
-  - H1: 3xl to 5xl (48-64px desktop)
-  - H2: 2xl to 4xl (36-48px desktop)
-  - H3: xl to 2xl (24-32px desktop)
-- **Body**: Clean modern sans-serif (Inter Regular, system-ui)
-  - Base: 16px (text-base)
-  - Small: 14px (text-sm)
-  - Large: 18px (text-lg)
+
+### Font Stack
+- **Primary**: Inter - Clean, modern, medical-grade clarity
+- **Headings**: Montserrat Bold - Strong, professional presence
+
+### Type Scale
+- **H1**: 3xl-5xl (48-64px) - Bold, gold accent optional
+- **H2**: 2xl-4xl (36-48px) - Section headers
+- **H3**: xl-2xl (24-32px) - Subsection headers
+- **Body**: 16px (base) - Primary content
+- **Small**: 14px - Labels, metadata
+- **Caption**: 12px - Fine print, badges
 
 ## Spacing System
-Use Tailwind units: **2, 4, 6, 8, 12, 16, 20, 24** for consistent rhythm
-- Component padding: p-4 to p-8
-- Section spacing: py-12 to py-24
-- Element gaps: gap-4 to gap-8
+Tailwind units for consistent rhythm: 2, 4, 6, 8, 12, 16, 20, 24
+- **Tight**: gap-2 to gap-4 (dense info)
+- **Normal**: gap-4 to gap-8 (standard spacing)
+- **Spacious**: gap-8 to gap-12 (section separation)
+- **Section padding**: py-16 to py-24
 
 ## Core Components
 
 ### Navigation
-- Sticky header with brand logo switcher (Forge/Formula toggle)
-- Primary navigation: Shop (mega-menu), About, Contact, Track Order
-- Secondary: Account, Cart icon with badge
-- Mobile: Hamburger menu with full-screen overlay
+- Dark header with subtle border bottom
+- Logo prominently displayed
+- Category navigation: Injectables, Orals, PCT/Pharma, Peptides, Growth Hormone
+- Right side: Account, Contact icons
+- Mobile: Hamburger with dark slide-out menu
 
 ### Product Cards
-- High-quality product images (square ratio, 1:1)
-- Product name, category badge, price prominently displayed
-- Stock indicator (In Stock/Low Stock/Out of Stock)
-- Quick add-to-cart button
-- Hover: Subtle lift effect, secondary image reveal
+- Dark card background with subtle border
+- Product image with clinical/vial appearance
+- Product name (bold, white)
+- Dosage/concentration (muted text)
+- Price in gold accent color
+- "Contact for Order" button (gold accent or outline)
+- Hover: Subtle lift with gold border glow
 
-### Cart Drawer
-- Slide-in from right
-- Product thumbnails with quantity controls
-- Real-time total calculations
-- Clear progress to checkout CTA
-- Empty state with category suggestions
+### Category Cards
+- Large icon or representative image
+- Category name in white
+- Product count in muted text
+- Dark background with gold/blue accent on hover
 
 ### Trust Elements
-- Badge icons: Free Shipping, Quality Guaranteed, 24/7 Support, Secure Checkout
-- Customer review stars and counts
-- Security certifications (payment badges)
-- Testimonial cards with customer photos
+- Pharmaceutical-grade quality badges
+- Discrete, professional shipping icons
+- Clinical lab/quality certifications
+- No customer reviews displayed publicly
 
-## Homepage Layout
+## Page Layouts
 
-### Hero Section (Full viewport)
-**Images**: Large hero image showcasing both Forge and Formula products in premium setting - dramatic lighting, professional product photography against clean background. Overlay both brand products with clear visual separation.
-- Headline: "Premium Performance. Scientific Precision."
-- Dual CTAs: "Shop Forge" (crimson) + "Shop Formula" (blue)
-- Buttons with blurred backgrounds (backdrop-blur-sm bg-black/30)
+### Homepage
+1. **Hero Section**
+   - Full-width dark background
+   - Bold headline: "Premium Pharmaceutical Grade Products"
+   - Subtext emphasizing quality and discretion
+   - CTA: "Browse Catalog" with gold accent
+   
+2. **Category Grid**
+   - 5 categories in responsive grid (1 mobile, 3 tablet, 5 desktop)
+   - Each with icon and category name
+   - Clean, minimal design
 
-### Category Grid (Below fold)
-6 main categories with icon + image cards in 2-column mobile, 3-column tablet, 6-column desktop grid
-Icons: Use Heroicons for category representations
+3. **Featured Products**
+   - Grid of 8-12 popular items
+   - Dark cards with gold price highlights
 
-### Featured Products Carousel
-Horizontal scroll of 8-12 featured items
-Auto-play with manual controls
-Product cards with hover effects
+4. **Trust Section**
+   - Quality guarantee badges
+   - Discrete shipping
+   - Lab-tested quality
 
-### Trust Section
-4-column grid of trust badges with icons and short descriptions
+### Shop Page
+- Sidebar filtering (categories, price range)
+- Product grid (2 mobile, 3 tablet, 4 desktop)
+- Sort options (price, name)
+- Dark theme throughout
 
-### Testimonials
-3-column grid (1 on mobile) with customer photos, quotes, star ratings
+### Product Detail
+- Large product image
+- Product name, dosage, concentration
+- Price prominently displayed
+- "Contact for Order" button
+- Product description
+- Related products grid
 
-### Footer
-Multi-column layout:
-- Brand info + newsletter signup
-- Shop links (all categories)
-- Support (FAQ, Shipping, How to Pay, Track Order)
-- Legal (Terms, Privacy, Refund Policy)
-- Social icons + payment badges
+## Button Styles
 
-## Product Page Structure
-- Image gallery (main + 4 thumbnails, lightbox on click)
-- Product details sidebar: Name, price, category, stock, description
-- Quantity selector + Add to Cart (prominent CTA)
-- Tabs: Description, How to Use, Reviews
-- Related Products grid below
+### Primary CTA
+- Gold background (#D4AF37) with dark text
+- Use for main actions: "Contact for Order", "Browse Catalog"
 
-## Images Strategy
-- **Hero**: 1 large dual-brand hero image
-- **Category cards**: Representative product images for each category
-- **Product images**: Professional product photography on white/gray background
-- **Testimonials**: Customer headshots (placeholder avatars)
-- **About page**: Lab/facility images, team photos
-- All images optimized, lazy-loaded, with alt text
+### Secondary
+- Outline with gold border
+- White text
+- Use for secondary actions
+
+### Ghost
+- Transparent with white text
+- Subtle hover state
+- Use for navigation, tertiary actions
 
 ## Form Styling
-- Input fields: border-2, rounded-md, focus:ring-2
-- Labels: text-sm font-medium above inputs
-- Buttons: Full-width on mobile, auto-width desktop
-- Validation: Inline error messages in red
-- Checkout: Multi-step with progress indicator
+- Dark input backgrounds (#121214)
+- Subtle border (#1E1E22)
+- White text, gray placeholder
+- Gold focus ring
+- Error states in red
 
-## Animations
-Minimal, purposeful only:
-- Page transitions: fade-in
-- Product cards: subtle hover lift
-- Cart badge: bounce on add
-- Loading states: spinner only
-No scroll-triggered or excessive motion
+## Contact/Order Flow
+Products use "Contact for Order" instead of add-to-cart:
+- Button links to contact page or opens inquiry modal
+- Pre-fills product name in inquiry form
+- Professional, discrete approach
 
-## Responsive Breakpoints
-- Mobile: base (< 640px)
-- Tablet: md (640px+)
-- Desktop: lg (1024px+)
-- Wide: xl (1280px+)
+## Responsive Design
+- Mobile-first approach
+- Breakpoints: sm(640), md(768), lg(1024), xl(1280)
+- Product grids collapse gracefully
+- Touch-friendly spacing on mobile
+- Navigation collapses to hamburger
 
-All components stack to single column on mobile, multi-column on desktop. Product grids: 1 → 2 → 3 → 4 columns across breakpoints.
+## Dark Mode
+The site uses dark theme as default and primary mode:
+- No light mode toggle needed
+- Consistent dark aesthetic throughout
+- Gold accents provide visual interest without light mode
+
+## Images Strategy
+- Product images: Clinical vial/bottle on dark or gradient background
+- Placeholders: Medical-grade aesthetic with product type indicators
+- Icons: Lucide React for consistency
+- All images: Optimized, lazy-loaded
