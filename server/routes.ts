@@ -250,5 +250,22 @@ export async function registerRoutes(
     }
   });
 
+  // Get Stripe session status for verification
+  app.get("/api/stripe/session/:sessionId", async (req, res) => {
+    try {
+      const stripe = await getUncachableStripeClient();
+      const session = await stripe.checkout.sessions.retrieve(req.params.sessionId);
+      
+      res.json({
+        status: session.payment_status,
+        customerEmail: session.customer_email,
+        amountTotal: session.amount_total ? session.amount_total / 100 : 0,
+      });
+    } catch (error) {
+      console.error("Error retrieving checkout session:", error);
+      res.status(500).json({ error: "Failed to retrieve session" });
+    }
+  });
+
   return httpServer;
 }

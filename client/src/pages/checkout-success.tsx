@@ -1,9 +1,50 @@
-import { Link } from "wouter";
-import { CheckCircle, Package, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useSearch } from "wouter";
+import { CheckCircle, Package, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCartStore } from "@/lib/cart-store";
 
 export default function CheckoutSuccessPage() {
+  const search = useSearch();
+  const searchParams = new URLSearchParams(search);
+  const sessionId = searchParams.get("session_id");
+  const clearCart = useCartStore((state) => state.clearCart);
+  const [isVerifying, setIsVerifying] = useState(!!sessionId);
+  const [verified, setVerified] = useState(!sessionId);
+
+  useEffect(() => {
+    if (sessionId) {
+      fetch(`/api/stripe/session/${sessionId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "complete" || data.status === "paid") {
+            clearCart();
+            setVerified(true);
+          } else {
+            setVerified(true);
+          }
+        })
+        .catch(() => {
+          setVerified(true);
+        })
+        .finally(() => {
+          setIsVerifying(false);
+        });
+    } else {
+      clearCart();
+    }
+  }, [sessionId, clearCart]);
+
+  if (isVerifying) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center lg:px-8">
+        <Loader2 className="h-12 w-12 mx-auto animate-spin text-gold" />
+        <p className="mt-4 text-muted-foreground">Verifying your payment...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 text-center lg:px-8">
       <div className="flex h-20 w-20 mx-auto items-center justify-center rounded-full bg-green-900/30 mb-6">
