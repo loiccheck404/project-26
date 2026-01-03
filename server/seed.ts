@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { categories, products } from "@shared/schema";
+import { categories, products, paymentMethods } from "@shared/schema";
 import { sql } from "drizzle-orm";
 
 const categoryData = [
@@ -91,6 +91,69 @@ const productData = [
   { name: "Genotropin 36iu 12mg", slug: "genotropin-36", shortDescription: "Genotropin 36IU (12mg) pen", description: "Pharmaceutical grade HGH pen.", price: "300.00", brand: "medical", categorySlug: "growth-hormone", stock: 10, featured: true },
 ];
 
+const paymentMethodData = [
+  { 
+    name: "Credit/Debit Card", 
+    type: "card", 
+    enabled: true, 
+    description: "Pay securely with your credit or debit card", 
+    instructions: "You will be redirected to our secure payment processor to complete your purchase.",
+    icon: "credit-card",
+    sortOrder: 1,
+    providerKey: "stripe"
+  },
+  { 
+    name: "Cash App", 
+    type: "manual", 
+    enabled: true, 
+    description: "Pay via Cash App", 
+    instructions: "Send payment to $ForgeFormula. Include your order number in the notes.",
+    icon: "smartphone",
+    sortOrder: 2,
+    providerKey: "cashapp"
+  },
+  { 
+    name: "Zelle", 
+    type: "manual", 
+    enabled: true, 
+    description: "Pay via Zelle bank transfer", 
+    instructions: "Send payment to payments@forgeformula.com. Include your order number in the memo.",
+    icon: "building-2",
+    sortOrder: 3,
+    providerKey: "zelle"
+  },
+  { 
+    name: "Apple Pay", 
+    type: "external", 
+    enabled: true, 
+    description: "Pay with Apple Pay", 
+    instructions: "Complete payment using Apple Pay on your device.",
+    icon: "apple",
+    sortOrder: 4,
+    providerKey: "applepay"
+  },
+  { 
+    name: "Crypto (Bitcoin)", 
+    type: "crypto", 
+    enabled: true, 
+    description: "Pay with Bitcoin", 
+    instructions: "Send BTC to the wallet address provided after order confirmation. Payment must be received within 30 minutes.",
+    icon: "bitcoin",
+    sortOrder: 5,
+    providerKey: "btc"
+  },
+  { 
+    name: "Crypto (USDT)", 
+    type: "crypto", 
+    enabled: true, 
+    description: "Pay with Tether (USDT)", 
+    instructions: "Send USDT (ERC-20 or TRC-20) to the wallet address provided after order confirmation.",
+    icon: "coins",
+    sortOrder: 6,
+    providerKey: "usdt"
+  },
+];
+
 export async function seed() {
   console.log("Seeding database...");
 
@@ -117,6 +180,15 @@ export async function seed() {
       categoryId: insertedCategories[categorySlug],
     });
     console.log(`Created product: ${prod.name}`);
+  }
+
+  // Insert payment methods
+  const existingPaymentMethods = await db.select().from(paymentMethods).limit(1);
+  if (existingPaymentMethods.length === 0) {
+    for (const method of paymentMethodData) {
+      await db.insert(paymentMethods).values(method);
+      console.log(`Created payment method: ${method.name}`);
+    }
   }
 
   console.log("Seeding complete!");

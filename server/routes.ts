@@ -1,9 +1,21 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, registerAuthRoutes } from "./replit_integrations/auth";
 import { z } from "zod";
 import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
+import { insertPaymentMethodSchema } from "@shared/schema";
+
+// Admin middleware - checks if user is an admin
+const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  const adminUserIds = (process.env.ADMIN_USER_IDS || "").split(",").filter(Boolean);
+  const userId = req.user?.id;
+  
+  if (!userId || (adminUserIds.length > 0 && !adminUserIds.includes(userId))) {
+    return res.status(403).json({ error: "Admin access required" });
+  }
+  next();
+};
 
 export async function registerRoutes(
   httpServer: Server,
@@ -265,6 +277,70 @@ export async function registerRoutes(
       console.error("Error retrieving checkout session:", error);
       res.status(500).json({ error: "Failed to retrieve session" });
     }
+  });
+
+  // Payment Methods - Public (enabled only)
+  app.get("/api/payment-methods", async (req, res) => {
+    try {
+      const methods = await storage.getEnabledPaymentMethods();
+      res.json(methods);
+    } catch (error) {
+      console.error("Error fetching payment methods:", error);
+      res.status(500).json({ error: "Failed to fetch payment methods" });
+    }
+  });
+
+  // Payment Methods - Admin (all methods)
+  app.get("/api/admin/payment-methods", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const methods = await storage.getPaymentMethods();
+      res.json(methods);
+    } catch (error) {
+      console.error("Error fetching payment methods:", error);
+      res.status(500).json({ error: "Failed to fetch payment methods" });
+    }
+  });
+
+  app.post("/api/admin/payment-methods", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const validation = insertPaymentMethodSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: "Invalid payment method data", details: validation.error.errors });
+      }
+      const method = await storage.createPaymentMethod(validation.data);
+      res.status(201).json(method);
+    } catch (error) {
+      console.error("Error creating payment method:", error);
+      res.status(500).json({ error: "Failed to create payment method" });
+    }
+  });
+
+  app.patch("/api/admin/payment-methods/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const method = await storage.updatePaymentMethod(req.params.id, req.body);
+      if (!method) {
+        return res.status(404).json({ error: "Payment method not found" });
+      }
+      res.json(method);
+    } catch (error) {
+      console.error("Error updating payment method:", error);
+      res.status(500).json({ error: "Failed to update payment method" });
+    }
+  });
+
+  app.delete("/api/admin/payment-methods/:id", isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      await storage.deletePaymentMethod(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting payment method:", error);
+      res.status(500).json({ error: "Failed to delete payment method" });
+    }
+  });
+
+  // Admin check endpoint
+  app.get("/api/admin/check", isAuthenticated, isAdmin, async (req, res) => {
+    res.json({ isAdmin: true });
   });
 
   return httpServer;
