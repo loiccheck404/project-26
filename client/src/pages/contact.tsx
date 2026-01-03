@@ -66,15 +66,15 @@ export default function ContactPage() {
     defaultValues: {
       name: "",
       email: "",
-      subject: productInquiry ? "order" : "",
-      message: productInquiry ? `I would like to inquire about ordering: ${productInquiry}\n\nPlease provide details on availability and ordering process.` : "",
+      subject: productInquiry ? "product" : "",
+      message: productInquiry ? `I have a question about: ${productInquiry}` : "",
     },
   });
 
   useEffect(() => {
     if (productInquiry) {
-      form.setValue("subject", "order");
-      form.setValue("message", `I would like to inquire about ordering: ${productInquiry}\n\nPlease provide details on availability and ordering process.`);
+      form.setValue("subject", "product");
+      form.setValue("message", `I have a question about: ${productInquiry}`);
     }
   }, [productInquiry, form]);
 
@@ -83,7 +83,7 @@ export default function ContactPage() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsSubmitting(false);
     toast({
-      title: "Inquiry sent!",
+      title: "Message sent!",
       description: "We'll get back to you as soon as possible.",
     });
     form.reset();
@@ -94,12 +94,10 @@ export default function ContactPage() {
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
       <div className="text-center mb-12">
         <h1 className="font-heading text-4xl font-bold tracking-tight">
-          {productInquiry ? "Product Inquiry" : "Contact Us"}
+          Contact Us
         </h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-          {productInquiry 
-            ? `Inquiring about: ${productInquiry}. Fill out the form below and we'll respond promptly.`
-            : "Have questions or ready to order? Fill out the form below and we'll get back to you."}
+          Have questions? Fill out the form below and we'll get back to you promptly.
         </p>
       </div>
 
@@ -122,7 +120,7 @@ export default function ContactPage() {
         <Card className="border-border">
           <CardContent className="p-6 lg:p-8">
             <h2 className="font-heading text-2xl font-bold mb-6">
-              {productInquiry ? "Order Inquiry Form" : "Send us a message"}
+              Send us a message
             </h2>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -172,9 +170,9 @@ export default function ContactPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="order">Product Order Inquiry</SelectItem>
                           <SelectItem value="general">General Question</SelectItem>
-                          <SelectItem value="product">Product Information</SelectItem>
+                          <SelectItem value="product">Product Question</SelectItem>
+                          <SelectItem value="order">Order Support</SelectItem>
                           <SelectItem value="shipping">Shipping Question</SelectItem>
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
@@ -213,7 +211,7 @@ export default function ContactPage() {
                   ) : (
                     <>
                       <Send className="mr-2 h-4 w-4" />
-                      Send Inquiry
+                      Send Message
                     </>
                   )}
                 </Button>
@@ -221,10 +219,6 @@ export default function ContactPage() {
             </Form>
           </CardContent>
         </Card>
-
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          This is for educational survey purposes only.
-        </p>
       </div>
     </div>
   );

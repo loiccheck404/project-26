@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import {
@@ -6,13 +7,16 @@ import {
   Truck,
   Shield,
   FlaskConical,
-  MessageCircle,
+  ShoppingCart,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { ProductCard, ProductCardSkeleton } from "@/components/product-card";
+import { useCartStore } from "@/lib/cart-store";
 import type { Product } from "@shared/schema";
 
 interface ProductPageProps {
@@ -20,6 +24,9 @@ interface ProductPageProps {
 }
 
 export default function ProductPage({ slug }: ProductPageProps) {
+  const [quantity, setQuantity] = useState(1);
+  const { addItem } = useCartStore();
+
   const { data: product, isLoading } = useQuery<Product>({
     queryKey: ["/api/products", slug],
   });
@@ -63,8 +70,11 @@ export default function ProductPage({ slug }: ProductPageProps) {
   const hasPrice = product.price !== null;
   const currentPrice = hasPrice ? parseFloat(product.price!) : null;
 
-  const handleContactClick = () => {
-    window.location.href = `/contact?product=${encodeURIComponent(product.name)}`;
+  const handleAddToCart = () => {
+    if (hasPrice && isInStock) {
+      addItem(product, quantity);
+      setQuantity(1);
+    }
   };
 
   return (
@@ -111,7 +121,7 @@ export default function ProductPage({ slug }: ProductPageProps) {
               </span>
             ) : (
               <span className="text-lg font-medium text-muted-foreground">
-                Price: Inquire via DM
+                Contact for price
               </span>
             )}
           </div>
@@ -135,21 +145,57 @@ export default function ProductPage({ slug }: ProductPageProps) {
 
           <Separator />
 
-          <div className="space-y-4">
-            <Button
-              size="lg"
-              className="w-full bg-gold text-black font-semibold"
-              disabled={!isInStock}
-              onClick={handleContactClick}
-              data-testid="button-contact-order"
-            >
-              <MessageCircle className="mr-2 h-5 w-5" />
-              Contact for Order
-            </Button>
-            <p className="text-sm text-center text-muted-foreground">
-              Click above to inquire about this product
-            </p>
-          </div>
+          {hasPrice && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium">Quantity:</span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={!isInStock}
+                    data-testid="button-decrease-quantity"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-12 text-center font-medium">{quantity}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                    disabled={!isInStock || quantity >= product.stock}
+                    data-testid="button-increase-quantity"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <Button
+                size="lg"
+                className="w-full bg-gold text-black font-semibold"
+                disabled={!isInStock}
+                onClick={handleAddToCart}
+                data-testid="button-add-to-cart"
+              >
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                Add to Cart - ${(currentPrice! * quantity).toFixed(2)}
+              </Button>
+            </div>
+          )}
+
+          {!hasPrice && (
+            <div className="space-y-4">
+              <Button
+                size="lg"
+                className="w-full bg-gold text-black font-semibold"
+                asChild
+              >
+                <Link href="/contact">Contact for Price</Link>
+              </Button>
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-3">
             <div className="flex flex-col items-center text-center rounded-lg border border-border bg-card/50 p-3">
@@ -184,7 +230,7 @@ export default function ProductPage({ slug }: ProductPageProps) {
           <div className="prose prose-sm dark:prose-invert max-w-none">
             <p className="text-muted-foreground">
               Please consult with a healthcare professional for proper usage instructions and dosage recommendations. 
-              Follow all product guidelines and safety precautions. This information is for educational purposes only.
+              Follow all product guidelines and safety precautions.
             </p>
           </div>
         </TabsContent>

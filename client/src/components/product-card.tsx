@@ -1,8 +1,9 @@
 import { Link } from "wouter";
-import { MessageCircle, Package } from "lucide-react";
+import { Package, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useCartStore } from "@/lib/cart-store";
 import type { Product } from "@shared/schema";
 
 interface ProductCardProps {
@@ -10,15 +11,18 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { addItem } = useCartStore();
   const isInStock = product.stock > 0;
   const isLowStock = product.stock > 0 && product.stock <= 5;
   const hasPrice = product.price !== null;
   const currentPrice = hasPrice ? parseFloat(product.price!) : null;
 
-  const handleContactClick = (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    window.location.href = `/contact?product=${encodeURIComponent(product.name)}`;
+    if (hasPrice && isInStock) {
+      addItem(product, 1);
+    }
   };
 
   return (
@@ -63,7 +67,7 @@ export function ProductCard({ product }: ProductCardProps) {
               </span>
             ) : (
               <span className="text-sm font-medium text-muted-foreground">
-                Inquire via DM
+                Contact for price
               </span>
             )}
             {isLowStock && (
@@ -76,12 +80,12 @@ export function ProductCard({ product }: ProductCardProps) {
         <Button
           className="w-full mt-3 bg-gold text-black font-medium"
           size="sm"
-          disabled={!isInStock}
-          onClick={handleContactClick}
-          data-testid={`button-contact-order-${product.id}`}
+          disabled={!isInStock || !hasPrice}
+          onClick={handleAddToCart}
+          data-testid={`button-add-cart-${product.id}`}
         >
-          <MessageCircle className="h-4 w-4 mr-2" />
-          Contact for Order
+          <ShoppingCart className="h-4 w-4 mr-2" />
+          Add to Cart
         </Button>
       </CardContent>
     </Card>
