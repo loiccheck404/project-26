@@ -119,6 +119,46 @@ export default function CheckoutPage() {
 
   const selectedPayment = form.watch("paymentMethod");
 
+  const stripeCheckoutMutation = useMutation({
+    mutationFn: async (data: CheckoutFormData) => {
+      const checkoutData = {
+        items: items.map(item => ({
+          productId: item.product.id,
+          name: item.product.name,
+          price: item.product.price ? parseFloat(item.product.price) : 0,
+          quantity: item.quantity,
+          imageUrl: item.product.imageUrl,
+        })),
+        shippingAddress: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          address1: data.address1,
+          address2: data.address2,
+          city: data.city,
+          state: data.state,
+          zip: data.zip,
+          country: data.country,
+          phone: data.phone,
+        },
+        email: data.email,
+      };
+      const response = await apiRequest("POST", "/api/stripe/create-checkout-session", checkoutData);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    },
+    onError: () => {
+      toast({
+        title: "Failed to start checkout",
+        description: "Please try again or use an alternative payment method.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const createOrderMutation = useMutation({
     mutationFn: async (data: CheckoutFormData) => {
       const orderData = {
@@ -166,10 +206,7 @@ export default function CheckoutPage() {
 
   const onSubmit = (data: CheckoutFormData) => {
     if (data.paymentMethod === "card") {
-      toast({
-        title: "Stripe Integration Required",
-        description: "Card payments require Stripe setup. Please use an alternative payment method for now.",
-      });
+      stripeCheckoutMutation.mutate(data);
       return;
     }
 
@@ -507,11 +544,11 @@ export default function CheckoutPage() {
                 type="submit"
                 size="lg"
                 className="w-full bg-gold text-black font-semibold"
-                disabled={createOrderMutation.isPending}
+                disabled={createOrderMutation.isPending || stripeCheckoutMutation.isPending}
                 data-testid="button-place-order"
               >
-                {createOrderMutation.isPending ? (
-                  "Placing Order..."
+                {createOrderMutation.isPending || stripeCheckoutMutation.isPending ? (
+                  "Processing..."
                 ) : (
                   <>
                     <CheckCircle className="mr-2 h-5 w-5" />

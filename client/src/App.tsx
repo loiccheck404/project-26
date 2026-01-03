@@ -11,6 +11,7 @@ import ShopPage from "@/pages/shop";
 import ProductPage from "@/pages/product";
 import CartPage from "@/pages/cart";
 import CheckoutPage from "@/pages/checkout";
+import CheckoutSuccessPage from "@/pages/checkout-success";
 import AccountPage from "@/pages/account";
 import OrdersPage from "@/pages/orders";
 import AboutPage from "@/pages/about";
@@ -34,6 +35,7 @@ function Router() {
       </Route>
       <Route path="/cart" component={CartPage} />
       <Route path="/checkout" component={CheckoutPage} />
+      <Route path="/checkout/success" component={CheckoutSuccessPage} />
       <Route path="/account" component={AccountPage} />
       <Route path="/orders" component={OrdersPage} />
       <Route path="/orders/:orderId" component={OrdersPage} />
