@@ -112,6 +112,10 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
+// Serve generated images and assets
+import nodePath from "path";
+app.use('/assets', express.static(nodePath.resolve(process.cwd(), 'attached_assets')));
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
