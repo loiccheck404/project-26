@@ -43,7 +43,7 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products", categorySlug],
+    queryKey: ["/api/products"],
   });
 
   const { data: categories } = useQuery<Category[]>({

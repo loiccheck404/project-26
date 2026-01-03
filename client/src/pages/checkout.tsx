@@ -48,7 +48,7 @@ const checkoutSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Valid email is required"),
-  phone: z.string().optional(),
+  phone: z.string().min(1, "Phone number is required"),
   address1: z.string().min(1, "Address is required"),
   address2: z.string().optional(),
   city: z.string().min(1, "City is required"),
@@ -241,6 +241,16 @@ export default function CheckoutPage() {
           </CardContent>
         </Card>
 
+        <Card className="mt-4 text-left border-gold/30 bg-gold/5">
+          <CardContent className="py-4">
+            <p className="font-medium text-gold mb-2">Important: Confirm Your Payment</p>
+            <p className="text-sm text-muted-foreground">
+              After sending payment, please take a screenshot of your payment confirmation and send it to us via email or our contact form. 
+              Include your order details so we can verify and process your order quickly.
+            </p>
+          </CardContent>
+        </Card>
+
         <p className="mt-6 text-sm text-muted-foreground">
           Once payment is confirmed, your order will be processed within 24-48 hours.
         </p>
@@ -309,7 +319,7 @@ export default function CheckoutPage() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem className="sm:col-span-2">
-                        <FormLabel>Phone (optional)</FormLabel>
+                        <FormLabel>Phone Number</FormLabel>
                         <FormControl>
                           <Input
                             type="tel"
