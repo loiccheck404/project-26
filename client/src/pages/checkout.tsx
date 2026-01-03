@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,7 +12,12 @@ import {
   DollarSign,
   CheckCircle,
   Package,
+  Building2,
+  Coins,
+  Loader2,
 } from "lucide-react";
+import { SiApple } from "react-icons/si";
+import type { PaymentMethod } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,43 +60,25 @@ const checkoutSchema = z.object({
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
-const paymentMethods = [
-  {
-    id: "card",
-    name: "Credit/Debit Card",
-    description: "Pay securely with Stripe",
-    icon: CreditCard,
-  },
-  {
-    id: "cashapp",
-    name: "Cash App",
-    description: "Send payment to $ForgeFormula",
-    icon: DollarSign,
-  },
-  {
-    id: "zelle",
-    name: "Zelle",
-    description: "Send to payments@forgeformula.com",
-    icon: Smartphone,
-  },
-  {
-    id: "applepay",
-    name: "Apple Pay",
-    description: "Quick checkout with Apple Pay",
-    icon: Smartphone,
-  },
-  {
-    id: "crypto",
-    name: "Crypto (BTC/USDT)",
-    description: "Pay with Bitcoin or USDT",
-    icon: Bitcoin,
-  },
-];
+const iconMap: Record<string, any> = {
+  "credit-card": CreditCard,
+  "smartphone": Smartphone,
+  "building-2": Building2,
+  "apple": SiApple,
+  "bitcoin": Bitcoin,
+  "coins": Coins,
+  "dollar-sign": DollarSign,
+};
+
+function getIconComponent(iconName?: string | null) {
+  if (!iconName) return CreditCard;
+  return iconMap[iconName] || CreditCard;
+}
 
 export default function CheckoutPage() {
   const [, setLocation] = useLocation();
   const [orderComplete, setOrderComplete] = useState(false);
-  const [completedPaymentMethod, setCompletedPaymentMethod] = useState("");
+  const [completedPaymentMethod, setCompletedPaymentMethod] = useState<PaymentMethod | null>(null);
   const [completedTotal, setCompletedTotal] = useState(0);
   const { items, getTotal, clearCart } = useCartStore();
   const { user, isAuthenticated } = useAuth();
@@ -99,6 +86,10 @@ export default function CheckoutPage() {
   const total = getTotal();
   const shipping = 0;
   const grandTotal = total + shipping;
+
+  const { data: paymentMethods = [], isLoading: loadingPaymentMethods } = useQuery<PaymentMethod[]>({
+    queryKey: ["/api/payment-methods"],
+  });
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -190,7 +181,8 @@ export default function CheckoutPage() {
       return response.json();
     },
     onSuccess: (order, variables) => {
-      setCompletedPaymentMethod(variables.paymentMethod);
+      const selectedMethod = paymentMethods.find(m => m.providerKey === variables.paymentMethod);
+      setCompletedPaymentMethod(selectedMethod || null);
       setCompletedTotal(grandTotal);
       setOrderComplete(true);
       clearCart();
@@ -205,13 +197,15 @@ export default function CheckoutPage() {
   });
 
   const onSubmit = (data: CheckoutFormData) => {
-    if (data.paymentMethod === "card") {
+    const selectedMethod = paymentMethods.find(m => m.providerKey === data.paymentMethod);
+    
+    if (selectedMethod?.type === "card") {
       stripeCheckoutMutation.mutate(data);
       return;
     }
 
     if (!isAuthenticated) {
-      setCompletedPaymentMethod(data.paymentMethod);
+      setCompletedPaymentMethod(selectedMethod || null);
       setCompletedTotal(grandTotal);
       setOrderComplete(true);
       clearCart();
@@ -237,42 +231,11 @@ export default function CheckoutPage() {
             <CardTitle>Payment Instructions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {completedPaymentMethod === "cashapp" && (
+            {completedPaymentMethod && (
               <div>
-                <p className="font-medium">Cash App</p>
-                <p className="text-muted-foreground">Send ${completedTotal.toFixed(2)} to: <span className="text-gold font-mono">$ForgeFormula</span></p>
-                <p className="text-sm text-muted-foreground mt-2">Include your email in the note for order verification.</p>
-              </div>
-            )}
-            {completedPaymentMethod === "zelle" && (
-              <div>
-                <p className="font-medium">Zelle</p>
-                <p className="text-muted-foreground">Send ${completedTotal.toFixed(2)} to: <span className="text-gold font-mono">payments@forgeformula.com</span></p>
-                <p className="text-sm text-muted-foreground mt-2">Include your email in the memo for order verification.</p>
-              </div>
-            )}
-            {completedPaymentMethod === "applepay" && (
-              <div>
-                <p className="font-medium">Apple Pay</p>
-                <p className="text-muted-foreground">Send ${completedTotal.toFixed(2)} via Apple Pay.</p>
-                <p className="text-sm text-muted-foreground mt-2">Contact us for Apple Pay transfer details.</p>
-              </div>
-            )}
-            {completedPaymentMethod === "crypto" && (
-              <div>
-                <p className="font-medium">Crypto Payment</p>
-                <p className="text-muted-foreground mb-2">Send ${completedTotal.toFixed(2)} equivalent in BTC or USDT:</p>
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-xs text-muted-foreground">BTC Address:</p>
-                    <p className="font-mono text-sm text-gold break-all">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">USDT (TRC20):</p>
-                    <p className="font-mono text-sm text-gold break-all">TN7xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</p>
-                  </div>
-                </div>
-                <p className="text-sm text-muted-foreground mt-2">Send transaction hash to our email for confirmation.</p>
+                <p className="font-medium">{completedPaymentMethod.name}</p>
+                <p className="text-muted-foreground mb-2">Amount: <span className="text-gold font-semibold">${completedTotal.toFixed(2)}</span></p>
+                <p className="text-sm text-muted-foreground whitespace-pre-line">{completedPaymentMethod.instructions}</p>
               </div>
             )}
           </CardContent>
@@ -492,51 +455,65 @@ export default function CheckoutPage() {
                   <CardTitle>Payment Method</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <FormField
-                    control={form.control}
-                    name="paymentMethod"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            className="space-y-3"
-                          >
-                            {paymentMethods.map((method) => (
-                              <div key={method.id}>
-                                <Label
-                                  htmlFor={method.id}
-                                  className={`flex items-center gap-4 rounded-lg border p-4 cursor-pointer transition-colors ${
-                                    field.value === method.id
-                                      ? "border-gold bg-gold/5"
-                                      : "border-border hover:bg-muted/50"
-                                  }`}
-                                >
-                                  <RadioGroupItem value={method.id} id={method.id} className="sr-only" />
-                                  <div className={`flex h-10 w-10 items-center justify-center rounded-md ${
-                                    field.value === method.id ? "bg-gold/20" : "bg-muted"
-                                  }`}>
-                                    <method.icon className={`h-5 w-5 ${
-                                      field.value === method.id ? "text-gold" : "text-muted-foreground"
-                                    }`} />
+                  {loadingPaymentMethods ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : (
+                    <FormField
+                      control={form.control}
+                      name="paymentMethod"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              className="space-y-3"
+                            >
+                              {paymentMethods.map((method) => {
+                                const IconComponent = getIconComponent(method.icon);
+                                const isSelected = field.value === method.providerKey;
+                                return (
+                                  <div key={method.id}>
+                                    <Label
+                                      htmlFor={method.providerKey || method.id}
+                                      className={`flex items-center gap-4 rounded-lg border p-4 cursor-pointer transition-colors ${
+                                        isSelected
+                                          ? "border-gold bg-gold/5"
+                                          : "border-border hover:bg-muted/50"
+                                      }`}
+                                    >
+                                      <RadioGroupItem 
+                                        value={method.providerKey || method.id} 
+                                        id={method.providerKey || method.id} 
+                                        className="sr-only" 
+                                      />
+                                      <div className={`flex h-10 w-10 items-center justify-center rounded-md ${
+                                        isSelected ? "bg-gold/20" : "bg-muted"
+                                      }`}>
+                                        <IconComponent className={`h-5 w-5 ${
+                                          isSelected ? "text-gold" : "text-muted-foreground"
+                                        }`} />
+                                      </div>
+                                      <div className="flex-1">
+                                        <p className="font-medium">{method.name}</p>
+                                        <p className="text-sm text-muted-foreground">{method.description}</p>
+                                      </div>
+                                      {isSelected && (
+                                        <CheckCircle className="h-5 w-5 text-gold" />
+                                      )}
+                                    </Label>
                                   </div>
-                                  <div className="flex-1">
-                                    <p className="font-medium">{method.name}</p>
-                                    <p className="text-sm text-muted-foreground">{method.description}</p>
-                                  </div>
-                                  {field.value === method.id && (
-                                    <CheckCircle className="h-5 w-5 text-gold" />
-                                  )}
-                                </Label>
-                              </div>
-                            ))}
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                                );
+                              })}
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                 </CardContent>
               </Card>
 

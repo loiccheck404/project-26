@@ -20,6 +20,7 @@ import FAQPage from "@/pages/faq";
 import ShippingPage from "@/pages/shipping";
 import TrackOrderPage from "@/pages/track-order";
 import ReviewsPage from "@/pages/reviews";
+import AdminPaymentsPage from "@/pages/admin-payments";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -46,6 +47,7 @@ function Router() {
       <Route path="/how-to-pay" component={FAQPage} />
       <Route path="/track-order" component={TrackOrderPage} />
       <Route path="/reviews" component={ReviewsPage} />
+      <Route path="/admin/payments" component={AdminPaymentsPage} />
       <Route component={NotFound} />
     </Switch>
   );
