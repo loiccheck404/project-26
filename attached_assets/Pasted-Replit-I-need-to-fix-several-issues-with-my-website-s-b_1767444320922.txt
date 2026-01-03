@@ -1,0 +1,26 @@
+Replit
+
+
+I need to fix several issues with my website's behavior and functionality:
+>  * Scroll Direction: Currently, clicking navigation links causes the page to scroll in the 'opposite' direction or behaves unnaturally. Please ensure all internal links use standard smooth-scrolling behavior that moves the viewport down to the correct section.
+>  * Profile & Authentication: The profile button currently returns a 404 error. Please create a dedicated /profile or /auth route. Implement a functional User Authentication system where users can sign up, log in, and view their profile. (Use a simple library like Firebase, Supabase, or a mock backend for now).
+>  * Button Functionality: Every button on the site that currently leads to a 404 or does nothing needs to be linked to its respective section or a functional page. If a page doesn't exist yet, please create a 'Coming Soon' placeholder page for them instead of showing a 404.
+> Please review the routing logic to ensure all paths are correctly defined."
+> 
+Why these issues are happening
+To help you understand what your agent is fixing, here is a breakdown of the technical causes:
+1. The "Opposite" Scroll Issue
+This usually happens because of a conflict in the CSS or JavaScript.
+ * The Cause: Often, scroll-behavior: smooth; in CSS conflicts with a JavaScript "Scroll to Top" script, or the anchor tags are pointing to the wrong IDs.
+ * The Fix: The agent will likely add:
+   html {
+  scroll-behavior: smooth;
+}
+
+2. The 404 Error on Profile
+A 404 means the Route doesn't exist in your code.
+ * The Cause: You have a button that links to <a href="/profile">, but in your App files (like App.jsx or index.html), there is no instruction on what to show when someone visits /profile.
+ * The Fix: The agent needs to define a new route and create a Profile.jsx or profile.html file.
+3. General Button Functionality
+If buttons are "dead," they are likely just placeholders.
+ * The Fix: The agent will scan your Navbar and Hero sections and replace # or empty links with actual paths like /about, /services, or /contact.

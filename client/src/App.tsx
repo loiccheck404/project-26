@@ -21,6 +21,9 @@ import ShippingPage from "@/pages/shipping";
 import TrackOrderPage from "@/pages/track-order";
 import ReviewsPage from "@/pages/reviews";
 import AdminPaymentsPage from "@/pages/admin-payments";
+import ProfilePage from "@/pages/profile";
+import TermsPage from "@/pages/terms";
+import PrivacyPage from "@/pages/privacy";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -48,6 +51,9 @@ function Router() {
       <Route path="/track-order" component={TrackOrderPage} />
       <Route path="/reviews" component={ReviewsPage} />
       <Route path="/admin/payments" component={AdminPaymentsPage} />
+      <Route path="/profile" component={ProfilePage} />
+      <Route path="/terms" component={TermsPage} />
+      <Route path="/privacy" component={PrivacyPage} />
       <Route component={NotFound} />
     </Switch>
   );
