@@ -150,9 +150,6 @@ export function Footer() {
             <p className="text-xs text-muted-foreground">
               {new Date().getFullYear()} Forge & Formula. All rights reserved.
             </p>
-            <p className="text-xs text-muted-foreground">
-              For educational purposes only.
-            </p>
           </div>
         </div>
       </div>

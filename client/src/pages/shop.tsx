@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Search, SlidersHorizontal, X, MessageCircle } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -176,16 +176,6 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
         </>
       )}
 
-      <Separator />
-
-      <div className="pt-2">
-        <Button className="w-full bg-gold text-black font-medium" asChild>
-          <Link href="/contact">
-            <MessageCircle className="h-4 w-4 mr-2" />
-            Contact for Order
-          </Link>
-        </Button>
-      </div>
     </div>
   );
 

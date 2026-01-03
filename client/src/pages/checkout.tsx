@@ -4,11 +4,21 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, CreditCard, Lock, Check } from "lucide-react";
+import {
+  ArrowLeft,
+  CreditCard,
+  Smartphone,
+  Bitcoin,
+  DollarSign,
+  CheckCircle,
+  Package,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -40,19 +50,55 @@ const checkoutSchema = z.object({
   state: z.string().min(1, "State is required"),
   zip: z.string().min(1, "ZIP code is required"),
   country: z.string().min(1, "Country is required"),
+  paymentMethod: z.string().min(1, "Please select a payment method"),
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
+const paymentMethods = [
+  {
+    id: "card",
+    name: "Credit/Debit Card",
+    description: "Pay securely with Stripe",
+    icon: CreditCard,
+  },
+  {
+    id: "cashapp",
+    name: "Cash App",
+    description: "Send payment to $ForgeFormula",
+    icon: DollarSign,
+  },
+  {
+    id: "zelle",
+    name: "Zelle",
+    description: "Send to payments@forgeformula.com",
+    icon: Smartphone,
+  },
+  {
+    id: "applepay",
+    name: "Apple Pay",
+    description: "Quick checkout with Apple Pay",
+    icon: Smartphone,
+  },
+  {
+    id: "crypto",
+    name: "Crypto (BTC/USDT)",
+    description: "Pay with Bitcoin or USDT",
+    icon: Bitcoin,
+  },
+];
+
 export default function CheckoutPage() {
   const [, setLocation] = useLocation();
+  const [orderComplete, setOrderComplete] = useState(false);
+  const [completedPaymentMethod, setCompletedPaymentMethod] = useState("");
+  const [completedTotal, setCompletedTotal] = useState(0);
   const { items, getTotal, clearCart } = useCartStore();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const total = getTotal();
-  const shipping = total >= 150 ? 0 : 15;
-  const tax = total * 0.08;
-  const grandTotal = total + shipping + tax;
+  const shipping = 0;
+  const grandTotal = total + shipping;
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -67,8 +113,11 @@ export default function CheckoutPage() {
       state: "",
       zip: "",
       country: "US",
+      paymentMethod: "",
     },
   });
+
+  const selectedPayment = form.watch("paymentMethod");
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: CheckoutFormData) => {
@@ -93,19 +142,18 @@ export default function CheckoutPage() {
         })),
         subtotal: total.toFixed(2),
         shipping: shipping.toFixed(2),
-        tax: tax.toFixed(2),
+        tax: "0.00",
         total: grandTotal.toFixed(2),
+        paymentMethod: data.paymentMethod,
       };
       const response = await apiRequest("POST", "/api/orders", orderData);
       return response.json();
     },
-    onSuccess: (order) => {
+    onSuccess: (order, variables) => {
+      setCompletedPaymentMethod(variables.paymentMethod);
+      setCompletedTotal(grandTotal);
+      setOrderComplete(true);
       clearCart();
-      toast({
-        title: "Order placed successfully!",
-        description: `Your order #${order.id.slice(0, 8)} has been confirmed.`,
-      });
-      setLocation(`/orders/${order.id}`);
     },
     onError: () => {
       toast({
@@ -117,17 +165,92 @@ export default function CheckoutPage() {
   });
 
   const onSubmit = (data: CheckoutFormData) => {
-    if (!isAuthenticated) {
+    if (data.paymentMethod === "card") {
       toast({
-        title: "Please sign in",
-        description: "You need to be signed in to place an order.",
-        variant: "destructive",
+        title: "Stripe Integration Required",
+        description: "Card payments require Stripe setup. Please use an alternative payment method for now.",
       });
-      window.location.href = "/api/login";
       return;
     }
+
+    if (!isAuthenticated) {
+      setCompletedPaymentMethod(data.paymentMethod);
+      setCompletedTotal(grandTotal);
+      setOrderComplete(true);
+      clearCart();
+      return;
+    }
+
     createOrderMutation.mutate(data);
   };
+
+  if (orderComplete) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center lg:px-8">
+        <div className="flex h-20 w-20 mx-auto items-center justify-center rounded-full bg-green-900/30 mb-6">
+          <CheckCircle className="h-10 w-10 text-green-400" />
+        </div>
+        <h1 className="font-heading text-3xl font-bold">Order Placed!</h1>
+        <p className="mt-4 text-lg text-muted-foreground">
+          Thank you for your order. Please complete your payment below.
+        </p>
+
+        <Card className="mt-8 text-left">
+          <CardHeader>
+            <CardTitle>Payment Instructions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {completedPaymentMethod === "cashapp" && (
+              <div>
+                <p className="font-medium">Cash App</p>
+                <p className="text-muted-foreground">Send ${completedTotal.toFixed(2)} to: <span className="text-gold font-mono">$ForgeFormula</span></p>
+                <p className="text-sm text-muted-foreground mt-2">Include your email in the note for order verification.</p>
+              </div>
+            )}
+            {completedPaymentMethod === "zelle" && (
+              <div>
+                <p className="font-medium">Zelle</p>
+                <p className="text-muted-foreground">Send ${completedTotal.toFixed(2)} to: <span className="text-gold font-mono">payments@forgeformula.com</span></p>
+                <p className="text-sm text-muted-foreground mt-2">Include your email in the memo for order verification.</p>
+              </div>
+            )}
+            {completedPaymentMethod === "applepay" && (
+              <div>
+                <p className="font-medium">Apple Pay</p>
+                <p className="text-muted-foreground">Send ${completedTotal.toFixed(2)} via Apple Pay.</p>
+                <p className="text-sm text-muted-foreground mt-2">Contact us for Apple Pay transfer details.</p>
+              </div>
+            )}
+            {completedPaymentMethod === "crypto" && (
+              <div>
+                <p className="font-medium">Crypto Payment</p>
+                <p className="text-muted-foreground mb-2">Send ${completedTotal.toFixed(2)} equivalent in BTC or USDT:</p>
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground">BTC Address:</p>
+                    <p className="font-mono text-sm text-gold break-all">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">USDT (TRC20):</p>
+                    <p className="font-mono text-sm text-gold break-all">TN7xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</p>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">Send transaction hash to our email for confirmation.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <p className="mt-6 text-sm text-muted-foreground">
+          Once payment is confirmed, your order will be processed within 24-48 hours.
+        </p>
+
+        <Button className="mt-8 bg-gold text-black" asChild>
+          <Link href="/shop">Continue Shopping</Link>
+        </Button>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -136,7 +259,7 @@ export default function CheckoutPage() {
         <p className="mt-2 text-muted-foreground">
           Add some products before checking out.
         </p>
-        <Button className="mt-6" asChild>
+        <Button className="mt-6 bg-gold text-black" asChild>
           <Link href="/shop">Continue Shopping</Link>
         </Button>
       </div>
@@ -329,25 +452,61 @@ export default function CheckoutPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5" />
-                    Payment
-                  </CardTitle>
+                  <CardTitle>Payment Method</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="rounded-lg border border-dashed border-border p-6 text-center">
-                    <Lock className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                      Payment processing is not yet configured. Your order will be placed and you can pay upon confirmation.
-                    </p>
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="paymentMethod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            className="space-y-3"
+                          >
+                            {paymentMethods.map((method) => (
+                              <div key={method.id}>
+                                <Label
+                                  htmlFor={method.id}
+                                  className={`flex items-center gap-4 rounded-lg border p-4 cursor-pointer transition-colors ${
+                                    field.value === method.id
+                                      ? "border-gold bg-gold/5"
+                                      : "border-border hover:bg-muted/50"
+                                  }`}
+                                >
+                                  <RadioGroupItem value={method.id} id={method.id} className="sr-only" />
+                                  <div className={`flex h-10 w-10 items-center justify-center rounded-md ${
+                                    field.value === method.id ? "bg-gold/20" : "bg-muted"
+                                  }`}>
+                                    <method.icon className={`h-5 w-5 ${
+                                      field.value === method.id ? "text-gold" : "text-muted-foreground"
+                                    }`} />
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="font-medium">{method.name}</p>
+                                    <p className="text-sm text-muted-foreground">{method.description}</p>
+                                  </div>
+                                  {field.value === method.id && (
+                                    <CheckCircle className="h-5 w-5 text-gold" />
+                                  )}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </CardContent>
               </Card>
 
               <Button
                 type="submit"
                 size="lg"
-                className="w-full"
+                className="w-full bg-gold text-black font-semibold"
                 disabled={createOrderMutation.isPending}
                 data-testid="button-place-order"
               >
@@ -355,7 +514,7 @@ export default function CheckoutPage() {
                   "Placing Order..."
                 ) : (
                   <>
-                    <Check className="mr-2 h-5 w-5" />
+                    <CheckCircle className="mr-2 h-5 w-5" />
                     Place Order - ${grandTotal.toFixed(2)}
                   </>
                 )}
@@ -370,26 +529,33 @@ export default function CheckoutPage() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {items.map((item) => (
-                <div key={item.product.id} className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex-shrink-0 rounded-md bg-muted overflow-hidden">
-                    {item.product.imageUrl && (
-                      <img
-                        src={item.product.imageUrl}
-                        alt={item.product.name}
-                        className="h-full w-full object-cover"
-                      />
-                    )}
+              {items.map((item) => {
+                const price = item.product.price ? parseFloat(item.product.price) : 0;
+                return (
+                  <div key={item.product.id} className="flex items-center gap-3">
+                    <div className="h-12 w-12 flex-shrink-0 rounded-md bg-muted overflow-hidden border border-border">
+                      {item.product.imageUrl ? (
+                        <img
+                          src={item.product.imageUrl}
+                          alt={item.product.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <Package className="h-5 w-5 text-muted-foreground/30" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{item.product.name}</p>
+                      <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                    </div>
+                    <span className="text-sm font-medium">
+                      ${(price * item.quantity).toFixed(2)}
+                    </span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{item.product.name}</p>
-                    <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
-                  </div>
-                  <span className="text-sm">
-                    ${(parseFloat(item.product.price) * item.quantity).toFixed(2)}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
 
               <Separator />
 
@@ -400,11 +566,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tax</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span className="text-green-400">Free</span>
                 </div>
               </div>
 
@@ -412,7 +574,7 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between font-medium text-lg">
                 <span>Total</span>
-                <span>${grandTotal.toFixed(2)}</span>
+                <span className="text-gold">${grandTotal.toFixed(2)}</span>
               </div>
             </CardContent>
           </Card>

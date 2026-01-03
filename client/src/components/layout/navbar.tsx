@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, User, MessageCircle } from "lucide-react";
+import { Menu, X, User, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
+import { useCartStore } from "@/lib/cart-store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +33,8 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const { getItemCount, toggleCart } = useCartStore();
+  const itemCount = getItemCount();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -103,14 +107,19 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <Button
-            className="hidden sm:inline-flex bg-gold text-black font-medium"
-            size="sm"
+            variant="ghost"
+            size="icon"
+            className="relative"
             asChild
-            data-testid="button-contact-order"
+            data-testid="button-cart"
           >
-            <Link href="/contact">
-              <MessageCircle className="h-4 w-4 mr-2" />
-              Contact for Order
+            <Link href="/cart">
+              <ShoppingCart className="h-5 w-5" />
+              {itemCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-gold text-black text-xs">
+                  {itemCount > 99 ? "99+" : itemCount}
+                </Badge>
+              )}
             </Link>
           </Button>
 
@@ -227,19 +236,17 @@ export function Navbar() {
                   Contact
                 </Button>
               </Link>
-            </div>
-            <div className="pt-2">
-              <Button
-                className="w-full bg-gold text-black font-medium"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  window.location.href = "/contact";
-                }}
-                data-testid="mobile-button-contact-order"
-              >
-                <MessageCircle className="h-4 w-4 mr-2" />
-                Contact for Order
-              </Button>
+              <Link href="/cart">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => setMobileMenuOpen(false)}
+                  data-testid="mobile-link-cart"
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Cart {itemCount > 0 && `(${itemCount})`}
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
