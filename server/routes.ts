@@ -188,10 +188,13 @@ export async function registerRoutes(
   app.get("/api/stripe/publishable-key", async (req, res) => {
     try {
       const publishableKey = await getStripePublishableKey();
-      res.json({ publishableKey });
+      if (!publishableKey) {
+        return res.json({ publishableKey: null, configured: false });
+      }
+      res.json({ publishableKey, configured: true });
     } catch (error) {
       console.error("Error getting Stripe publishable key:", error);
-      res.status(500).json({ error: "Failed to get Stripe configuration" });
+      res.json({ publishableKey: null, configured: false });
     }
   });
 
@@ -230,6 +233,10 @@ export async function registerRoutes(
       const { items, shippingAddress, email } = validation.data;
       const stripe = await getUncachableStripeClient();
 
+      if (!stripe) {
+        return res.status(503).json({ error: "Stripe is not configured. Please use an alternative payment method." });
+      }
+
       const lineItems = items.map(item => ({
         price_data: {
           currency: 'usd',
@@ -266,6 +273,11 @@ export async function registerRoutes(
   app.get("/api/stripe/session/:sessionId", async (req, res) => {
     try {
       const stripe = await getUncachableStripeClient();
+      
+      if (!stripe) {
+        return res.status(503).json({ error: "Stripe is not configured" });
+      }
+      
       const session = await stripe.checkout.sessions.retrieve(req.params.sessionId);
       
       res.json({

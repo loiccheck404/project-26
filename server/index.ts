@@ -43,6 +43,11 @@ async function initStripe() {
     log('Stripe schema ready', 'stripe');
 
     const stripeSync = await getStripeSync();
+    
+    if (!stripeSync) {
+      log('Stripe not configured - you can add Stripe credentials later', 'stripe');
+      return;
+    }
 
     log('Setting up managed webhook...', 'stripe');
     const webhookBaseUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0]}`;
@@ -68,11 +73,11 @@ async function initStripe() {
         log('Error syncing Stripe data: ' + err.message, 'stripe');
       });
   } catch (error: any) {
-    log('Failed to initialize Stripe: ' + error.message, 'stripe');
+    log('Stripe initialization skipped: ' + error.message, 'stripe');
   }
 }
 
-await initStripe();
+initStripe().catch(() => {});
 
 app.post(
   '/api/stripe/webhook',
