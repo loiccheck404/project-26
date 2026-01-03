@@ -19,6 +19,9 @@ import {
   type Review,
   type InsertReview,
   reviews,
+  type PaymentMethod,
+  type InsertPaymentMethod,
+  paymentMethods,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -55,6 +58,14 @@ export interface IStorage {
   // Reviews
   getProductReviews(productId: string): Promise<Review[]>;
   createReview(review: InsertReview): Promise<Review>;
+
+  // Payment Methods
+  getPaymentMethods(): Promise<PaymentMethod[]>;
+  getEnabledPaymentMethods(): Promise<PaymentMethod[]>;
+  getPaymentMethodById(id: string): Promise<PaymentMethod | undefined>;
+  createPaymentMethod(method: InsertPaymentMethod): Promise<PaymentMethod>;
+  updatePaymentMethod(id: string, method: Partial<InsertPaymentMethod>): Promise<PaymentMethod | undefined>;
+  deletePaymentMethod(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -207,6 +218,49 @@ export class DatabaseStorage implements IStorage {
   async createReview(review: InsertReview): Promise<Review> {
     const result = await db.insert(reviews).values(review).returning();
     return result[0];
+  }
+
+  // Payment Methods
+  async getPaymentMethods(): Promise<PaymentMethod[]> {
+    return await db
+      .select()
+      .from(paymentMethods)
+      .orderBy(paymentMethods.sortOrder);
+  }
+
+  async getEnabledPaymentMethods(): Promise<PaymentMethod[]> {
+    return await db
+      .select()
+      .from(paymentMethods)
+      .where(eq(paymentMethods.enabled, true))
+      .orderBy(paymentMethods.sortOrder);
+  }
+
+  async getPaymentMethodById(id: string): Promise<PaymentMethod | undefined> {
+    const result = await db
+      .select()
+      .from(paymentMethods)
+      .where(eq(paymentMethods.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async createPaymentMethod(method: InsertPaymentMethod): Promise<PaymentMethod> {
+    const result = await db.insert(paymentMethods).values(method).returning();
+    return result[0];
+  }
+
+  async updatePaymentMethod(id: string, method: Partial<InsertPaymentMethod>): Promise<PaymentMethod | undefined> {
+    const result = await db
+      .update(paymentMethods)
+      .set({ ...method, updatedAt: new Date() })
+      .where(eq(paymentMethods.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deletePaymentMethod(id: string): Promise<void> {
+    await db.delete(paymentMethods).where(eq(paymentMethods.id, id));
   }
 }
 

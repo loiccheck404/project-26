@@ -164,6 +164,22 @@ export const cartItemsRelations = relations(cartItems, ({ one }) => ({
   }),
 }));
 
+// Payment Methods (admin-configurable)
+export const paymentMethods = pgTable("payment_methods", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // card, manual, external, crypto
+  enabled: boolean("enabled").notNull().default(true),
+  description: text("description"),
+  instructions: text("instructions"),
+  icon: text("icon"),
+  feeNote: text("fee_note"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  providerKey: text("provider_key"), // e.g. "stripe", "cashapp", "zelle" - for linking to env vars
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertCategorySchema = createInsertSchema(categories).omit({ id: true, createdAt: true });
 export const insertProductSchema = createInsertSchema(products).omit({ id: true, createdAt: true, updatedAt: true });
@@ -171,6 +187,7 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({ id: true, c
 export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true });
 export const insertCartItemSchema = createInsertSchema(cartItems).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertPaymentMethodSchema = createInsertSchema(paymentMethods).omit({ id: true, createdAt: true, updatedAt: true });
 
 // Types
 export type Category = typeof categories.$inferSelect;
@@ -190,6 +207,9 @@ export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 
 export type CartItem = typeof cartItems.$inferSelect;
 export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
+
+export type PaymentMethod = typeof paymentMethods.$inferSelect;
+export type InsertPaymentMethod = z.infer<typeof insertPaymentMethodSchema>;
 
 // Extended types for frontend
 export type ProductWithCategory = Product & { category: Category | null };
