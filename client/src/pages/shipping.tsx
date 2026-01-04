@@ -6,7 +6,7 @@ const shippingMethods = [
     name: "Standard Shipping",
     price: "$15.00",
     time: "5-7 business days",
-    description: "Free on orders over $150",
+    description: "Reliable domestic delivery",
   },
   {
     name: "Express Shipping",
@@ -141,11 +141,11 @@ export default function ShippingPage() {
           <Package className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
           <div>
             <h3 className="font-heading text-xl font-semibold mb-2">
-              Free Shipping on Orders Over $150
+              Minimum Order Value: $300
             </h3>
             <p className="text-muted-foreground">
-              Enjoy free standard shipping on all domestic orders of $150 or more.
-              This offer is automatically applied at checkout - no code needed!
+              All orders require a minimum purchase of $300. This helps us maintain 
+              our premium quality standards and efficient processing.
             </p>
           </div>
         </div>

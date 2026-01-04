@@ -3,8 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, registerAuthRoutes } from "./replit_integrations/auth";
 import { z } from "zod";
-import { getUncachableStripeClient, getStripePublishableKey } from "./stripeClient";
 import { insertPaymentMethodSchema } from "@shared/schema";
+
+const MINIMUM_ORDER_AMOUNT = 300;
 
 // Admin middleware - checks if user is an admin
 const isAdmin = (req: Request, res: Response, next: NextFunction) => {
@@ -156,6 +157,14 @@ export async function registerRoutes(
 
       const { shippingAddress, items, subtotal, shipping, tax, total } = validation.data;
 
+      // Backend enforcement of minimum order amount
+      const totalAmount = parseFloat(total);
+      if (totalAmount < MINIMUM_ORDER_AMOUNT) {
+        return res.status(400).json({ 
+          error: `Minimum order amount is $${MINIMUM_ORDER_AMOUNT}. Your total is $${totalAmount.toFixed(2)}.` 
+        });
+      }
+
       const order = await storage.createOrder({
         userId,
         status: "pending",
@@ -181,113 +190,6 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error creating order:", error);
       res.status(500).json({ error: "Failed to create order" });
-    }
-  });
-
-  // Stripe publishable key endpoint
-  app.get("/api/stripe/publishable-key", async (req, res) => {
-    try {
-      const publishableKey = await getStripePublishableKey();
-      if (!publishableKey) {
-        return res.json({ publishableKey: null, configured: false });
-      }
-      res.json({ publishableKey, configured: true });
-    } catch (error) {
-      console.error("Error getting Stripe publishable key:", error);
-      res.json({ publishableKey: null, configured: false });
-    }
-  });
-
-  // Create Stripe checkout session
-  const checkoutSessionSchema = z.object({
-    items: z.array(
-      z.object({
-        productId: z.string(),
-        name: z.string(),
-        price: z.number(),
-        quantity: z.number(),
-        imageUrl: z.string().optional(),
-      })
-    ),
-    shippingAddress: z.object({
-      firstName: z.string(),
-      lastName: z.string(),
-      address1: z.string(),
-      address2: z.string().optional(),
-      city: z.string(),
-      state: z.string(),
-      zip: z.string(),
-      country: z.string(),
-      phone: z.string().optional(),
-    }),
-    email: z.string().email(),
-  });
-
-  app.post("/api/stripe/create-checkout-session", async (req, res) => {
-    try {
-      const validation = checkoutSessionSchema.safeParse(req.body);
-      if (!validation.success) {
-        return res.status(400).json({ error: "Invalid checkout data", details: validation.error.errors });
-      }
-
-      const { items, shippingAddress, email } = validation.data;
-      const stripe = await getUncachableStripeClient();
-
-      if (!stripe) {
-        return res.status(503).json({ error: "Stripe is not configured. Please use an alternative payment method." });
-      }
-
-      const lineItems = items.map(item => ({
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: item.name,
-            images: item.imageUrl ? [item.imageUrl] : [],
-          },
-          unit_amount: Math.round(item.price * 100),
-        },
-        quantity: item.quantity,
-      }));
-
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: lineItems,
-        mode: 'payment',
-        customer_email: email,
-        success_url: `${req.protocol}://${req.get('host')}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.protocol}://${req.get('host')}/checkout`,
-        metadata: {
-          shippingAddress: JSON.stringify(shippingAddress),
-          customerEmail: email,
-        },
-      });
-
-      res.json({ url: session.url });
-    } catch (error) {
-      console.error("Error creating checkout session:", error);
-      res.status(500).json({ error: "Failed to create checkout session" });
-    }
-  });
-
-  // Get Stripe session status for verification
-  app.get("/api/stripe/session/:sessionId", async (req, res) => {
-    try {
-      const stripe = await getUncachableStripeClient();
-      
-      if (!stripe) {
-        return res.status(503).json({ error: "Stripe is not configured" });
-      }
-      
-      const session = await stripe.checkout.sessions.retrieve(req.params.sessionId);
-      
-      res.json({
-        status: session.payment_status,
-        customerEmail: session.customer_email,
-        amountTotal: session.amount_total ? session.amount_total / 100 : 0,
-      });
-    } catch (error) {
-      console.error("Error retrieving checkout session:", error);
-      res.status(500).json({ error: "Failed to retrieve session" });
     }
   });
 

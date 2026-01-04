@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Layout } from "@/components/layout";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 import HomePage from "@/pages/home";
 import ShopPage from "@/pages/shop";
@@ -64,6 +65,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="forge-formula-theme">
         <TooltipProvider>
+          <ScrollToTop />
           <Layout>
             <Router />
           </Layout>

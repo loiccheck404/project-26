@@ -15,6 +15,7 @@ import {
   Building2,
   Coins,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { SiApple } from "react-icons/si";
 import type { PaymentMethod } from "@shared/schema";
@@ -43,6 +44,9 @@ import { useCartStore } from "@/lib/cart-store";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+
+const MINIMUM_ORDER_AMOUNT = 300;
+const CHECKOUT_COVER_IMAGE = ""; // Add your checkout header background image URL here
 
 const checkoutSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -109,46 +113,7 @@ export default function CheckoutPage() {
   });
 
   const selectedPayment = form.watch("paymentMethod");
-
-  const stripeCheckoutMutation = useMutation({
-    mutationFn: async (data: CheckoutFormData) => {
-      const checkoutData = {
-        items: items.map(item => ({
-          productId: item.product.id,
-          name: item.product.name,
-          price: item.product.price ? parseFloat(item.product.price) : 0,
-          quantity: item.quantity,
-          imageUrl: item.product.imageUrl,
-        })),
-        shippingAddress: {
-          firstName: data.firstName,
-          lastName: data.lastName,
-          address1: data.address1,
-          address2: data.address2,
-          city: data.city,
-          state: data.state,
-          zip: data.zip,
-          country: data.country,
-          phone: data.phone,
-        },
-        email: data.email,
-      };
-      const response = await apiRequest("POST", "/api/stripe/create-checkout-session", checkoutData);
-      return response.json();
-    },
-    onSuccess: (data) => {
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    },
-    onError: () => {
-      toast({
-        title: "Failed to start checkout",
-        description: "Please try again or use an alternative payment method.",
-        variant: "destructive",
-      });
-    },
-  });
+  const isBelowMinimum = grandTotal < MINIMUM_ORDER_AMOUNT;
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: CheckoutFormData) => {
@@ -197,12 +162,16 @@ export default function CheckoutPage() {
   });
 
   const onSubmit = (data: CheckoutFormData) => {
-    const selectedMethod = paymentMethods.find(m => m.providerKey === data.paymentMethod);
-    
-    if (selectedMethod?.type === "card") {
-      stripeCheckoutMutation.mutate(data);
+    if (isBelowMinimum) {
+      toast({
+        title: "Minimum order not met",
+        description: `Minimum order amount is $${MINIMUM_ORDER_AMOUNT}. Please add more items to your cart.`,
+        variant: "destructive",
+      });
       return;
     }
+
+    const selectedMethod = paymentMethods.find(m => m.providerKey === data.paymentMethod);
 
     if (!isAuthenticated) {
       setCompletedPaymentMethod(selectedMethod || null);
@@ -285,7 +254,18 @@ export default function CheckoutPage() {
         </Link>
       </Button>
 
-      <h1 className="font-heading text-3xl font-bold mb-8">Checkout</h1>
+      <div className="relative mb-8 -mx-4 px-4 py-8 lg:-mx-8 lg:px-8 overflow-hidden">
+        {CHECKOUT_COVER_IMAGE && (
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${CHECKOUT_COVER_IMAGE})` }}
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/70" />
+        <div className="relative">
+          <h1 className="font-heading text-3xl font-bold">Checkout</h1>
+        </div>
+      </div>
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -527,15 +507,32 @@ export default function CheckoutPage() {
                 </CardContent>
               </Card>
 
+              {isBelowMinimum && (
+                <div className="flex items-center gap-3 rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-4">
+                  <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-yellow-500">Minimum order amount is ${MINIMUM_ORDER_AMOUNT}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Add ${(MINIMUM_ORDER_AMOUNT - grandTotal).toFixed(2)} more to proceed with checkout.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <Button
                 type="submit"
                 size="lg"
                 className="w-full bg-gold text-black font-semibold"
-                disabled={createOrderMutation.isPending || stripeCheckoutMutation.isPending}
+                disabled={createOrderMutation.isPending || isBelowMinimum}
                 data-testid="button-place-order"
               >
-                {createOrderMutation.isPending || stripeCheckoutMutation.isPending ? (
+                {createOrderMutation.isPending ? (
                   "Processing..."
+                ) : isBelowMinimum ? (
+                  <>
+                    <AlertTriangle className="mr-2 h-5 w-5" />
+                    Minimum Order: ${MINIMUM_ORDER_AMOUNT}
+                  </>
                 ) : (
                   <>
                     <CheckCircle className="mr-2 h-5 w-5" />

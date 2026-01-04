@@ -18,9 +18,9 @@ const faqs = [
           "Standard shipping typically takes 5-7 business days within the continental US. Express shipping options are available at checkout for faster delivery. International orders may take 10-21 business days depending on the destination.",
       },
       {
-        question: "Do you offer free shipping?",
+        question: "What is the minimum order amount?",
         answer:
-          "Yes! We offer free standard shipping on all orders over $150. Orders under $150 have a flat rate shipping fee of $15.",
+          "We have a minimum order value of $300. This allows us to maintain our premium quality standards and efficient order processing. Shipping fees apply based on your selected shipping method.",
       },
       {
         question: "How can I track my order?",

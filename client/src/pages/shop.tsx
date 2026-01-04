@@ -29,6 +29,8 @@ interface ShopPageProps {
   categorySlug?: string;
 }
 
+const CATEGORY_COVER_IMAGE = ""; // Add your category header background image URL here
+
 const sortOptions = [
   { value: "featured", label: "Featured" },
   { value: "price-asc", label: "Price: Low to High" },
@@ -181,18 +183,27 @@ export default function ShopPage({ categorySlug }: ShopPageProps) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
-      <div className="mb-8">
-        <h1 className="font-heading text-3xl font-bold tracking-tight">
-          {currentCategory ? currentCategory.name : "All Products"}
-        </h1>
-        {currentCategory?.description && (
-          <p className="mt-2 text-muted-foreground">{currentCategory.description}</p>
+      <div className="relative mb-8 -mx-4 px-4 py-8 lg:-mx-8 lg:px-8 overflow-hidden">
+        {CATEGORY_COVER_IMAGE && (
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${CATEGORY_COVER_IMAGE})` }}
+          />
         )}
-        {!currentCategory && (
-          <p className="mt-2 text-muted-foreground">
-            Browse our complete catalog of pharmaceutical-grade products
-          </p>
-        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/70" />
+        <div className="relative">
+          <h1 className="font-heading text-3xl font-bold tracking-tight">
+            {currentCategory ? currentCategory.name : "All Products"}
+          </h1>
+          {currentCategory?.description && (
+            <p className="mt-2 text-muted-foreground">{currentCategory.description}</p>
+          )}
+          {!currentCategory && (
+            <p className="mt-2 text-muted-foreground">
+              Browse our complete catalog of pharmaceutical-grade products
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col gap-4 mb-6 lg:flex-row lg:items-center lg:justify-between">

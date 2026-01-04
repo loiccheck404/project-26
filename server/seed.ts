@@ -95,9 +95,9 @@ const paymentMethodData = [
   { 
     name: "Credit/Debit Card", 
     type: "card", 
-    enabled: true, 
+    enabled: false, // Disabled - Stripe integration removed. Enable when payment processor is configured.
     description: "Pay securely with your credit or debit card", 
-    instructions: "You will be redirected to our secure payment processor to complete your purchase.",
+    instructions: "Card payments are currently unavailable. Please use an alternative payment method.",
     icon: "credit-card",
     sortOrder: 1,
     providerKey: "stripe"

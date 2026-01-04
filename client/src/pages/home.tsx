@@ -78,6 +78,8 @@ const qualityBadges = [
   },
 ];
 
+const HERO_COVER_IMAGE = ""; // Add your hero background image URL here
+
 export default function HomePage() {
   const { data: featuredProducts, isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products", "featured"],
@@ -86,7 +88,13 @@ export default function HomePage() {
   return (
     <div className="flex flex-col">
       <section className="relative overflow-hidden py-20 lg:py-32">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-card/50" />
+        {HERO_COVER_IMAGE && (
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${HERO_COVER_IMAGE})` }}
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/80 to-card/50" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/5 via-transparent to-transparent" />
         
         <div className="relative mx-auto max-w-7xl px-4 lg:px-8">
