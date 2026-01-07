@@ -1,6 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated, registerAuthRoutes } from "./replit_integrations/auth";
 import { z } from "zod";
 import { insertPaymentMethodSchema } from "@shared/schema";
 
@@ -17,16 +18,14 @@ const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// Dummy authentication middleware for local development
-const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-  req.user = { id: 'local-dev-user' };
-  next();
-};
-
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // Setup authentication first
+  await setupAuth(app);
+  registerAuthRoutes(app);
+
   // Seed database with initial data
   const { seed } = await import("./seed");
   await seed();
@@ -158,6 +157,7 @@ export async function registerRoutes(
 
       const { shippingAddress, items, subtotal, shipping, tax, total } = validation.data;
 
+      // Backend enforcement of minimum order amount
       const totalAmount = parseFloat(total);
       if (totalAmount < MINIMUM_ORDER_AMOUNT) {
         return res.status(400).json({ 
@@ -193,6 +193,7 @@ export async function registerRoutes(
     }
   });
 
+  // Payment Methods - Public (enabled only)
   app.get("/api/payment-methods", async (req, res) => {
     try {
       const methods = await storage.getEnabledPaymentMethods();
@@ -203,6 +204,7 @@ export async function registerRoutes(
     }
   });
 
+  // Payment Methods - Admin (all methods)
   app.get("/api/admin/payment-methods", isAuthenticated, isAdmin, async (req, res) => {
     try {
       const methods = await storage.getPaymentMethods();
@@ -250,6 +252,7 @@ export async function registerRoutes(
     }
   });
 
+  // Admin check endpoint
   app.get("/api/admin/check", isAuthenticated, isAdmin, async (req, res) => {
     res.json({ isAdmin: true });
   });
