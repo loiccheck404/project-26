@@ -21,6 +21,7 @@ const externals = allDeps.filter(
   (dep) => !["drizzle-orm", "drizzle-zod", "zod"].includes(dep)
 );
 
+//
 // Build command using npx esbuild
 const externalFlags = externals.map((dep) => `--external:${dep}`).join(" ");
 
