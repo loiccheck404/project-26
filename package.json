@@ -10,7 +10,7 @@
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "build:prod": "tsx script/build-production.ts",
-    "build:simple": "node script/build-simple.js"
+    "build:simple": "node script/build-simple.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
