@@ -27,10 +27,13 @@ export default defineConfig({
     },
   },
   root: path.resolve(import.meta.dirname, "client"),
+  // publicDir must be absolute path pointing to Project26/public
   publicDir: path.resolve(import.meta.dirname, "public"),
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Explicitly tell Vite to copy publicDir files
+    copyPublicDir: true,
   },
   server: {
     fs: {
