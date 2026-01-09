@@ -40,13 +40,12 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
-// Serve generated images and assets
+// Serve generated images and assets - same path for both dev and production
 import nodePath from "path";
-const assetsPath =
-  process.env.NODE_ENV === "production"
-    ? nodePath.resolve(process.cwd(), "dist/public/assets")
-    : nodePath.resolve(process.cwd(), "attached_assets");
-app.use("/assets", express.static(assetsPath));
+app.use(
+  "/assets",
+  express.static(nodePath.resolve(process.cwd(), "attached_assets"))
+);
 
 app.use((req, res, next) => {
   const start = Date.now();
