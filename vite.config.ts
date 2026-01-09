@@ -15,7 +15,7 @@ export default defineConfig({
             import.meta.dirname,
             "attached_assets/generated_images/*.png"
           ),
-          dest: "attached_assets/generated_images",
+          dest: "assets/generated_images",
         },
       ],
     }),
