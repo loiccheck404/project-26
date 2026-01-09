@@ -11,7 +11,7 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: "attached_assets/*",
+          src: path.resolve(import.meta.dirname, "attached_assets/*"),
           dest: "attached_assets",
         },
       ],
