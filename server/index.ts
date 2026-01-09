@@ -35,14 +35,18 @@ app.use(
     verify: (req, _res, buf) => {
       req.rawBody = buf;
     },
-  }),
+  })
 );
 
 app.use(express.urlencoded({ extended: false }));
 
 // Serve generated images and assets
 import nodePath from "path";
-app.use('/assets', express.static(nodePath.resolve(process.cwd(), 'attached_assets')));
+const assetsPath =
+  process.env.NODE_ENV === "production"
+    ? nodePath.resolve(process.cwd(), "dist/public/assets")
+    : nodePath.resolve(process.cwd(), "attached_assets");
+app.use("/assets", express.static(assetsPath));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -97,6 +101,6 @@ app.use((req, res, next) => {
     },
     () => {
       log(`serving on port ${port}`);
-    },
+    }
   );
 })();
